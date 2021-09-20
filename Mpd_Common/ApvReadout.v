@@ -15,7 +15,8 @@ module ApvReadout(RSTb, CLK, ENABLE, ADC_PDATA, SYNC_PERIOD, SYNCED, ERROR,
 	FIFO_DATA_OUT, FIFO_EMPTY, FIFO_FULL, FIFO_RD_CLK, FIFO_RD,
 	HIGH_ONE, LOW_ZERO, FIFO_CLEAR, DAQ_MODE,
 	NO_MORE_SPACE_FOR_EVENT, USED_FIFO_WORDS, ONE_MORE_EVENT,
-	MARKER_CH, SAMPLE_PER_EVENT, END_FRAME
+	MARKER_CH, SAMPLE_PER_EVENT, END_FRAME,
+	APV_WRITE_ON_FULL
 	);
 
 input RSTb, CLK, ENABLE;
@@ -35,7 +36,9 @@ output ONE_MORE_EVENT;
 input [7:0] MARKER_CH;
 input [4:0] SAMPLE_PER_EVENT;
 output END_FRAME;
+output APV_WRITE_ON_FULL;
 
+reg APV_WRITE_ON_FULL;
 reg [11:0] ADC_PDATA_REG;
 reg END_FRAME, HEADER_SEEN;
 reg fifo_write, data_frame, analog_data;
@@ -107,6 +110,7 @@ ApvDataFifo_4096x13_26 DataFifo(
 // Synchronizer
 always @(posedge CLK)
 begin
+	APV_WRITE_ON_FULL <= fifo_write& write_fifo_full;
 	ADC_PDATA_REG <= ADC_PDATA;
 	apv_mode <= (DAQ_MODE == 3'b001 || DAQ_MODE == 3'b011) ? 1 : 0;	// Simple or Processed
 	sample_mode <= (DAQ_MODE == 3'b010) ? 1 : 0;
@@ -219,11 +223,11 @@ begin
 			4: begin // Write original header
 				bit_count <= 0;
 				HEADER_SEEN <= 0;
-				if( NO_MORE_SPACE_FOR_EVENT == 0 )
-				begin
+				//if( NO_MORE_SPACE_FOR_EVENT == 0 )
+				//begin
 					complete_event <= 1;
 					fifo_write <= 1;
-				end
+				//end
 				fsm_status <= 41;
 			   end
 		

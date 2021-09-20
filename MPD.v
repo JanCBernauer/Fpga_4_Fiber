@@ -151,8 +151,8 @@ ads5281_apv ADC1(.APV_TRIGGER(APV_TRIGGER), .APV_MODE(APV_SAMPLE_MODE), .CLK(adc
 	.LCLK(adc_lclk1), .ADCLK(adc_ck1), .OUT18(adc_data[7:0]));
 ads5281_apv ADC2(.APV_TRIGGER(APV_TRIGGER), .APV_MODE(APV_SAMPLE_MODE), .CLK(adc_conv_ck),
 	.LCLK(adc_lclk2), .ADCLK(adc_ck2), .OUT18(adc_data[15:8]));
-defparam ADC1.data_file_prefix = "/home/braydo/Projects/fe_fw/Simulation/aldec/default/testbench/mpd_data/apv_data0_";
-defparam ADC2.data_file_prefix = "/home/braydo/Projects/fe_fw/Simulation/aldec/default/testbench/mpd_data/apv_data1_";
+defparam ADC1.data_file_prefix = "/home/braydo/Projects/fe_fw/Simulation/aldec/scripted_based/testbench/mpd_data/apv_data0_";
+defparam ADC2.data_file_prefix = "/home/braydo/Projects/fe_fw/Simulation/aldec/scripted_based/testbench/mpd_data/apv_data1_";
 
   // Clock generator: free running
   initial

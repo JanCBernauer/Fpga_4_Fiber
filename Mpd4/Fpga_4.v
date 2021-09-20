@@ -250,6 +250,7 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire EvbFifoFullLatched, EventFifoFullLatched, TimeFifoFullLatched,OutputFifoFullLatched;
 	wire Enable_Slave_Terminate;
 	wire User_Reset;
+	wire [15:0] APV_WRITE_ON_FULL;
 
 wire [31:0] data_from_vme, data_from_fiber, data_from_master, data_to_fiber;
 reg [63:0] data_to_master;
@@ -861,7 +862,8 @@ TrigGen ApvTriggerHandler(.APV_TRG(APV_TRIGGER), .RESET101(apv_reset101), .RSTb(
 	.NO_MORE_SPACE(no_more_space07 | no_more_space815),
 //	.SPACE_AVAILABLE(space_available07 & space_available815),
 	.SPACE_AVAILABLE( &ApvFifoEmpty ), .OUTPUT_FIFO_ALMOST_FULL(FifoLevel2&UseSdramFifo),
-	.TRIGGER_DISABLED(internal_trigger_disabled), .TRIGGER_DELAY(TriggerDelay));	// BUSY signal
+	.TRIGGER_DISABLED(internal_trigger_disabled), .TRIGGER_DELAY(TriggerDelay),
+	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL));	// BUSY signal
 
 TrigMeas TriggerMeasurements(.FAST_CK(ADC_LCLK1), .RSTb(RSTb_sync),
 	.START_TDC(APV_CLOCK), .STOP_TDC(incoming_trigger),
@@ -901,7 +903,8 @@ EightChannels ApvProcessor_0_7(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK1), .PROCE
 	.WE_PED_RAM(we_ped_ram[7:0]), .RE_PED_RAM(re_ped_ram[7:0]),
 	.WE_THR_RAM(we_thr_ram[7:0]), //.RE_THR_RAM(re_thr_ram[7:0]),
 	.MODULE_ID(~VME_GA[4:0]), .MARKER_CH(MarkerCh), .SAMPLE_PER_EVENT(SamplePerEvent),
-	.APV_FIFO_FULL_L(ApvFifoFullLatched[7:0]), .PROC_FIFO_FULL_L(ProcFifoFullLatched[7:0])
+	.APV_FIFO_FULL_L(ApvFifoFullLatched[7:0]), .PROC_FIFO_FULL_L(ProcFifoFullLatched[7:0]),
+	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[7:0])
 	);
 
 SevenChannels ApvProcessor_8_14(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK2), .PROCESS_CLK(Vme_clock),
@@ -933,7 +936,8 @@ SevenChannels ApvProcessor_8_14(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK2), .PROC
 	.WE_PED_RAM(we_ped_ram[15:8]), .RE_PED_RAM(re_ped_ram[15:8]),
 	.WE_THR_RAM(we_thr_ram[15:8]), //.RE_THR_RAM(re_thr_ram[15:8]),
 	.MODULE_ID(~VME_GA[4:0]), .MARKER_CH(MarkerCh), .SAMPLE_PER_EVENT(SamplePerEvent),
-	.APV_FIFO_FULL_L(ApvFifoFullLatched[15:8]), .PROC_FIFO_FULL_L(ProcFifoFullLatched[15:8])
+	.APV_FIFO_FULL_L(ApvFifoFullLatched[15:8]), .PROC_FIFO_FULL_L(ProcFifoFullLatched[15:8]),
+	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[15:8])
 	);
 
 FifoIf DebugFifoIf(.FIFO_RD(ApvFifo_read),

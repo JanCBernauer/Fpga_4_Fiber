@@ -1,7 +1,7 @@
 
 module TrigGen(APV_TRG, RESET101, RSTb, CLK, MAX_TRIG_OUT, TRIG_PULSE, TRIG_MODE,
 	TRIG_CMD, RESET_CMD, MISSING_TRIGGER_CNT, APV_TRIGGER_CNT, INCOMING_TRIGGER_CNT, MAX_RESET_LATENCY, CALIB_LATENCY,
-	NO_MORE_SPACE, SPACE_AVAILABLE, OUTPUT_FIFO_ALMOST_FULL, TRIGGER_DISABLED, TRIGGER_DELAY);
+	NO_MORE_SPACE, SPACE_AVAILABLE, OUTPUT_FIFO_ALMOST_FULL, TRIGGER_DISABLED, TRIGGER_DELAY, APV_WRITE_ON_FULL);
 output APV_TRG, RESET101;
 input RSTb, CLK;
 input [3:0] MAX_TRIG_OUT;
@@ -14,6 +14,7 @@ input [7:0] CALIB_LATENCY;
 input NO_MORE_SPACE, SPACE_AVAILABLE, OUTPUT_FIFO_ALMOST_FULL;
 output TRIGGER_DISABLED;
 input [7:0] TRIGGER_DELAY;
+input [15:0] APV_WRITE_ON_FULL;
 
 reg APV_TRG_int, RESET101;
 reg [31:0] MISSING_TRIGGER_CNT, APV_TRIGGER_CNT, INCOMING_TRIGGER_CNT;
@@ -31,6 +32,9 @@ reg enable, enable_dly0, enable_dly1, enable_dly2, enable_pulse;
 reg hw_trig_enable;
 reg trig_disable, trig_apv_normal, trig_apv_multiple, calib_trig_apv;
 reg multi_trig100, clr_trig_cnt, load_calibration_latency, calib_trig_pulse;
+reg [15:0] apv_write_on_full_reg1;
+reg [15:0] apv_write_on_full_reg2;
+reg apv_write_on_full_or;
 
 Delay31 ApvTrigDelay(.CLK(CLK), .RSTb(RSTb), .IN(APV_TRG_int), .OUT(APV_TRG), .DELAY(TRIGGER_DELAY[4:0]));
 
@@ -51,6 +55,10 @@ begin
 	TRIGGER_DISABLED <= ~hw_trig_enable | trig_disable;
 	
 	TRIG_PULSE <= trigger100_cmd | (multi_trig100 && (trig_cnt == 0));
+	
+	apv_write_on_full_reg1 <= APV_WRITE_ON_FULL;
+	apv_write_on_full_reg2 <= apv_write_on_full_reg1;
+	apv_write_on_full_or <= |apv_write_on_full_reg2;
 end
 
 // HW Trigger Enabling logic: permit trigger generation only if there is space available in all input FIFOs
@@ -62,12 +70,16 @@ begin
 	end
 	else
 	begin
-		if( SPACE_AVAILABLE )
-			hw_trig_enable <= 1;
-		else
-//			if( NO_MORE_SPACE )
-			if( NO_MORE_SPACE | OUTPUT_FIFO_ALMOST_FULL )
-				hw_trig_enable <= 0;
+		// must be ready to take triggers or we loose sync with other DAQ modules.
+		// will use missed trigger counter to instead track lost words in case FIFO is full
+		// NO_MORE_SPACE->hw_trig_enable logic has mixed clock domains (bug) and screws up trigger acceptance on some MPDs
+		hw_trig_enable <= 1;
+//		if( SPACE_AVAILABLE )
+//			hw_trig_enable <= 1;
+//		else
+////			if( NO_MORE_SPACE )
+//			if( NO_MORE_SPACE | OUTPUT_FIFO_ALMOST_FULL )
+//				hw_trig_enable <= 0;
 	end
 end
 
@@ -196,7 +208,7 @@ begin
 	end
 	else
 	begin
-		if( enable == 1 && trigger_pulse == 1 && hw_trig_enable  == 0 )
+		if( apv_write_on_full_or == 1 )
 			MISSING_TRIGGER_CNT <= MISSING_TRIGGER_CNT + 1;
 		else
 			if( reset101_cmd == 1 )
