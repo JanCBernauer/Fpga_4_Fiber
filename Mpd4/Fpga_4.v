@@ -141,7 +141,7 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire [63:0] Sdram_Fifo_Output_Data;
 
 	wire [1:0] internal_user_in;
-	wire ck_40MHz, ck_1MHz, time_clock, Vme_clock;
+	wire ck_40MHz, ck_1MHz, Vme_clock;
 	wire ck_10MHz;
 	wire Vme_DataReadout_ceB;
 	wire ObufStatus_ceB, AdcConfig_ceB, I2C_Controller_ceB, Vme_Sdram_ceB, Vme_ConfigReg_ceB;
@@ -210,7 +210,8 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire [3:0]  mem_local_be;
 	wire local_burstbegin, SdramInitialized;
 	wire mem_local_ready, mem_local_rdata_valid;
-	reg Vme_user_waitB;
+	// Vme_user_waitB;
+	wire Vme_user_waitB;
 	reg [31:0] mem_local_rdata_latched;
 	wire mem_aux_full_rate_clk, mem_aux_half_rate_clk, dll_reference_clk;
 	wire [5:0] dqs_delay_ctrl_export;
@@ -397,7 +398,6 @@ SyncReset ResetSynchronizer(.CK(MASTER_CLOCK), .ASYNC_RSTb(MASTER_RESETb & ~User
 	.SYNC_RSTb(RSTb_sync));
 
 assign APV_CLOCK = ck_40MHz;
-assign time_clock = sel_time_clk ? CLK_IN_P0 : APV_CLOCK;
 
 	always @(posedge APV_CLOCK)
 	begin
@@ -431,67 +431,66 @@ assign pll_clock_switch1 = SWITCH[1];	// default = OPEN = OFF = 1
  *
  * Switch default: *
  */
-// Connection for CK40_MUX are very crytical for P&R: do not modify them
-//CK40_MUX Ck40Mux_Inst(
-//	.clkselect(pll_clock_switch0),
-//	.inclk0x(ck_40MHz_from_Bkplane),
-//	.inclk1x(MASTER_CLOCK2),
-//	.outclk(ck_40MHz_Main));
-
-GlobalPll ClockGenerator(
-	.clkswitch(pll_clock_switch1),
-	//.inclk0(ck_40MHz_Main),
-	.inclk0(USER_IN_NIM[1]),
-	.inclk1(MASTER_CLOCK),
-	.c0(ck_40MHz),
-	.c1(ck_10MHz),
-	.c2(ck_1MHz));	// 1.2 MHz
+PLL_Global_Clk PLL_Global_Clk_inst(
+		.clkswitch(pll_clock_switch1),
+		.inclk0(USER_IN_NIM[1]),
+		.inclk1(MASTER_CLOCK),
+		.c0(ck_40MHz)
+	);
+	
+PLL_Local_Clk PLL_Local_Clk_inst(
+		.inclk0(MASTER_CLOCK),
+		.c0(Vme_clock),	// 100 MHz
+		.c1(ck_10MHz),
+		.c2(ck_1MHz)	// 1.2 MHz
+	);
 // End of Clocking devices
 
-assign Sdram_Fifo_Re = Fiber_enabled ? Fiber_data_re : (~Vme_user_reB & ~DataReadout_ceB);
+//assign Sdram_Fifo_Re = Fiber_enabled ? Fiber_data_re : (~Vme_user_reB & ~DataReadout_ceB);
 
-assign mem_local_addr      = ~UseSdramFifo ? {Sdram_Bank[3:0], Vme_user_addr[20:0]} : Sdram_Fifo_addr;
-assign mem_local_wdata     = ~UseSdramFifo ? data_from_vme : Sdram_Fifo_wdata;
-assign mem_local_write_req = ~UseSdramFifo ? (~Vme_user_weB & ~Sdram_ceB) : Sdram_Fifo_write_req;
-assign mem_local_read_req  = ~UseSdramFifo ? (~Vme_user_reB & ~Sdram_ceB) : Sdram_Fifo_read_req;
+//assign mem_local_addr      = ~UseSdramFifo ? {Sdram_Bank[3:0], Vme_user_addr[20:0]} : Sdram_Fifo_addr;
+//assign mem_local_wdata     = ~UseSdramFifo ? data_from_vme : Sdram_Fifo_wdata;
+//assign mem_local_write_req = ~UseSdramFifo ? (~Vme_user_weB & ~Sdram_ceB) : Sdram_Fifo_write_req;
+//assign mem_local_read_req  = ~UseSdramFifo ? (~Vme_user_reB & ~Sdram_ceB) : Sdram_Fifo_read_req;
 
-assign mem_local_be = 4'b1111;
-assign mem_local_size = 3'b001;
-assign local_burstbegin = 1'b1;
+//assign mem_local_be = 4'b1111;
+//assign mem_local_size = 3'b001;
+//assign local_burstbegin = 1'b1;
 
 assign EventBuilder_Read = (Fiber_enabled & Fiber_data_re) | ApvFifo_read[0] | (~Fiber_enabled & Sdram_Fifo_Evb_rd);
  
 assign Fiber_enabled = ~Vme_Fiber_disable;
 assign Fiber_activity = Fiber_enabled & (Fiber_wr_bus | Fiber_rd_bus | AuroraEndOfFrame);
 
-// For SDRAM Vme accesses: TEST ONLY
-	always @(posedge Vme_clock or negedge RSTb_sync)
-	begin
-		if( RSTb_sync == 0 )
-			Vme_user_waitB <= 1;
-		else
-		begin
-			if( mem_local_read_req == 1 && UseSdramFifo == 0 )
-				Vme_user_waitB <= 0;
-			if( mem_local_rdata_valid == 1 )
-				Vme_user_waitB <= 1;
-		end
-	end
+assign Vme_user_waitB = 1;
+//// For SDRAM Vme accesses: TEST ONLY
+//	always @(posedge Vme_clock or negedge RSTb_sync)
+//	begin
+//		if( RSTb_sync == 0 )
+//			Vme_user_waitB <= 1;
+//		else
+//		begin
+//			if( mem_local_read_req == 1 && UseSdramFifo == 0 )
+//				Vme_user_waitB <= 0;
+//			if( mem_local_rdata_valid == 1 )
+//				Vme_user_waitB <= 1;
+//		end
+//	end
 
 	always @(posedge Vme_clock)
 		AllClear <= AllFifoClear | apv_reset101;
 
-// Data register
-	always @(posedge Vme_clock or negedge RSTb_sync)
-	begin
-		if( RSTb_sync == 0 )
-			mem_local_rdata_latched <= 0;
-		else
-		begin
-		if( mem_local_rdata_valid == 1 )
-			mem_local_rdata_latched <= mem_local_rdata;
-		end
-	end
+//// Data register
+//	always @(posedge Vme_clock or negedge RSTb_sync)
+//	begin
+//		if( RSTb_sync == 0 )
+//			mem_local_rdata_latched <= 0;
+//		else
+//		begin
+//		if( mem_local_rdata_valid == 1 )
+//			mem_local_rdata_latched <= mem_local_rdata;
+//		end
+//	end
 
 	always @(*)
 	begin
@@ -503,7 +502,7 @@ assign Fiber_activity = Fiber_enabled & (Fiber_wr_bus | Fiber_rd_bus | AuroraEnd
 			9'b111110111: data_to_master <= {56'b0, dout_i2c};
 			9'b111101111: data_to_master <= {32'b0, dout_histo0};
 			9'b111011111: data_to_master <= {32'b0, dout_histo1};
-			9'b110111111: data_to_master <= {32'b0, mem_local_rdata_latched};
+//			9'b110111111: data_to_master <= {32'b0, mem_local_rdata_latched};
 			9'b101111111: data_to_master <= Sdram_Fifo_Output_Data;
 			9'b011111111: data_to_master <= {32'b0, Channel_Direct_Data};
 			default: data_to_master <= 64'b0;
@@ -530,50 +529,68 @@ FastSdramFifoIf SdramFifoHandler(.RSTb(RSTb_sync), .CLK(Vme_clock),
 	.OFIFO_BLOCKWORDCOUNT_FULL(OutputFifoBlockWordCount_Full), .OFIFO_BLOCKWORDCOUNT_Q(OutputFifoBlockWordCount_Q)
 	);
 
-Ddr2SdramIf Ddr2SdramIf_inst(
-	.aux_full_rate_clk (mem_aux_full_rate_clk),	// output
-	.aux_half_rate_clk (mem_aux_half_rate_clk),	// output
-	.dll_reference_clk (dll_reference_clk),		// output
-	.dqs_delay_ctrl_export (dqs_delay_ctrl_export),	// output
-	.global_reset_n (RSTb_sync),
+// disable DDR2 interface
+assign SdramInitialized = 0;
+assign mem_local_rdata_valid = 0;
+assign mem_local_ready = 1;
+assign SDRAM_A = 0;
+assign SDRAM_BA = 0;
+assign SDRAM_CASb = 1;
+assign SDRAM_CKE = 0;
+assign SDRAM_CK = 0;
+assign SDRAM_CKb = 1;
+assign SDRAM_CSb = 1;
+assign SDRAM_DM = 0;
+assign SDRAM_DQ = 8'bz;
+assign SDRAM_DQS = 1'bz;
+assign SDRAM_RASb = 1;
+assign SDRAM_WEb = 1;
+assign SDRAM_ODT = 0;
+	
+//Ddr2SdramIf Ddr2SdramIf_inst(
+//	.aux_full_rate_clk (mem_aux_full_rate_clk),	// output
+//	.aux_half_rate_clk (mem_aux_half_rate_clk),	// output
+//	.dll_reference_clk (dll_reference_clk),		// output
+//	.dqs_delay_ctrl_export (dqs_delay_ctrl_export),	// output
+//	.global_reset_n (RSTb_sync),
 
-	.local_init_done (SdramInitialized),	// output
-	.local_refresh_ack (),		// output
-	.local_burstbegin (local_burstbegin),
-	.local_be (mem_local_be),			// [3:0]
-	.local_size (mem_local_size),
+//	.local_init_done (SdramInitialized),	// output
+//	.local_refresh_ack (),		// output
+//	.local_burstbegin (local_burstbegin),
+//	.local_be (mem_local_be),			// [3:0]
+//	.local_size (mem_local_size),
 
-	.local_address (mem_local_addr),	// [24:0]
+//	.local_address (mem_local_addr),	// [24:0]
 
-	.local_rdata (mem_local_rdata),
-	.local_read_req (mem_local_read_req),
-	.local_rdata_valid (mem_local_rdata_valid),
+//	.local_rdata (mem_local_rdata),
+//	.local_read_req (mem_local_read_req),
+//	.local_rdata_valid (mem_local_rdata_valid),
 
-	.local_wdata (mem_local_wdata),
-	.local_write_req (mem_local_write_req),
-	.local_ready (mem_local_ready),
+//	.local_wdata (mem_local_wdata),
+//	.local_write_req (mem_local_write_req),
+//	.local_ready (mem_local_ready),
 
-	.mem_addr (SDRAM_A),
-	.mem_ba (SDRAM_BA),
-	.mem_cas_n (SDRAM_CASb),
-	.mem_cke (SDRAM_CKE),
-	.mem_clk (SDRAM_CK),	// output 200 MHz nominal, can run from 125 MHz up to 333 MHz
-	.mem_clk_n (SDRAM_CKb),
-	.mem_cs_n (SDRAM_CSb),
-	.mem_dm (SDRAM_DM),
-	.mem_dq (SDRAM_DQ),
-	.mem_dqs (SDRAM_DQS),
-	.mem_ras_n (SDRAM_RASb),
-	.mem_we_n (SDRAM_WEb),
-	.mem_odt (SDRAM_ODT),
+//	.mem_addr (SDRAM_A),
+//	.mem_ba (SDRAM_BA),
+//	.mem_cas_n (SDRAM_CASb),
+//	.mem_cke (SDRAM_CKE),
+//	.mem_clk (SDRAM_CK),	// output 200 MHz nominal, can run from 125 MHz up to 333 MHz
+//	.mem_clk_n (SDRAM_CKb),
+//	.mem_cs_n (SDRAM_CSb),
+//	.mem_dm (SDRAM_DM),
+//	.mem_dq (SDRAM_DQ),
+//	.mem_dqs (SDRAM_DQS),
+//	.mem_ras_n (SDRAM_RASb),
+//	.mem_we_n (SDRAM_WEb),
+//	.mem_odt (SDRAM_ODT),
 
-	.phy_clk (Vme_clock),		// output 100 MHz nominal, half of SDRAM_CK
+//	.phy_clk (Vme_clock),		// output 100 MHz nominal, half of SDRAM_CK
 
-	.pll_ref_clk (MASTER_CLOCK),// input 40 MHz
-	.reset_phy_clk_n (),		// output
-	.reset_request_n (),		// output
-	.soft_reset_n (1'b1)		// 200-300 us are needed before initialization
-    );
+//	.pll_ref_clk (MASTER_CLOCK),// input 40 MHz
+//	.reset_phy_clk_n (),		// output
+//	.reset_request_n (),		// output
+//	.soft_reset_n (1'b1)		// 200-300 us are needed before initialization
+//    );
 
 	mpd_fiber_interface AuroraInterface(
 			.FIBER_USER_CLK(ck_125MHz_out),		// output
@@ -984,7 +1001,7 @@ FifoIf DebugFifoIf(.FIFO_RD(ApvFifo_read),
 	);
 
 	
-EventBuilder TheBuilder(.RSTb(RSTb_sync), .TIME_CLK(time_clock), .CLK(Vme_clock),
+EventBuilder TheBuilder(.RSTb(RSTb_sync), .TIME_CLK(APV_CLOCK), .CLK(Vme_clock),
 //	.TRIGGER(incoming_trigger),	// Incoming trigger pulse
 	.TRIGGER(apv_trigger_pulse),	// Pulse sent to APVs
 	.ALL_CLEAR(AllClear),

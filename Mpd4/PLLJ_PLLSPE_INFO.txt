@@ -1,13 +1,3 @@
-PLL_Name	Ddr2SdramIf:Ddr2SdramIf_inst|Ddr2SdramIf_controller_phy:Ddr2SdramIf_controller_phy_inst|Ddr2SdramIf_phy:Ddr2SdramIf_phy_inst|Ddr2SdramIf_phy_alt_mem_phy:Ddr2SdramIf_phy_alt_mem_phy_inst|Ddr2SdramIf_phy_alt_mem_phy_clk_reset:clk|Ddr2SdramIf_phy_alt_mem_phy_pll:pll|altpll:altpll_component|pll
-PLLJITTER	80
-PLLSPEmax	102
-PLLSPEmin	-90
-
-PLL_Name	GlobalPll:ClockGenerator|altpll:altpll_component|pll
-PLLJITTER	72
-PLLSPEmax	112
-PLLSPEmin	-75
-
 PLL_Name	mpd_fiber_interface:AuroraInterface|aurora_8b10b_arria_gxb:aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3:aurora_8b10b_v5_3_inst|aurora_8b10b_v5_3_GTX_WRAPPER:gtx_wrapper_i|gxb_transceiver:gxb_transceiver_inst|alt2gxb:alt2gxb_component|channel_quad[0].pll0
 PLLJITTER	NA
 PLLSPEmax	NA
@@ -22,4 +12,14 @@ PLL_Name	mpd_fiber_interface:AuroraInterface|aurora_8b10b_arria_gxb:aurora_8b10b
 PLLJITTER	NA
 PLLSPEmax	NA
 PLLSPEmin	NA
+
+PLL_Name	PLL_Global_Clk:PLL_Global_Clk_inst|altpll:altpll_component|pll
+PLLJITTER	67
+PLLSPEmax	125
+PLLSPEmin	-70
+
+PLL_Name	PLL_Local_Clk:PLL_Local_Clk_inst|altpll:altpll_component|pll
+PLLJITTER	72
+PLLSPEmax	112
+PLLSPEmin	-75
 

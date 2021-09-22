@@ -1,5 +1,5 @@
 Flow report for Fpga
-Sun Sep 19 20:15:08 2021
+Tue Sep 21 23:40:10 2021
 Quartus II 64-Bit Version 13.0.1 Build 232 06/12/2013 Service Pack 1.78 SJ Full Version
 
 
@@ -40,25 +40,25 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------------------+
 ; Flow Summary                                                                         ;
 +--------------------------------+-----------------------------------------------------+
-; Flow Status                    ; Successful - Sun Sep 19 20:14:26 2021               ;
+; Flow Status                    ; Successful - Tue Sep 21 23:39:31 2021               ;
 ; Quartus II 64-Bit Version      ; 13.0.1 Build 232 06/12/2013 SP 1.78 SJ Full Version ;
 ; Revision Name                  ; Fpga                                                ;
 ; Top-level Entity Name          ; Fpga                                                ;
 ; Family                         ; Arria GX                                            ;
 ; Device                         ; EP1AGX60DF780C6                                     ;
 ; Timing Models                  ; Final                                               ;
-; Logic utilization              ; 53 %                                                ;
-;     Combinational ALUTs        ; 16,440 / 48,080 ( 34 % )                            ;
-;     Dedicated logic registers  ; 17,395 / 48,080 ( 36 % )                            ;
-; Total registers                ; 17671                                               ;
+; Logic utilization              ; 44 %                                                ;
+;     Combinational ALUTs        ; 12,859 / 48,080 ( 27 % )                            ;
+;     Dedicated logic registers  ; 14,807 / 48,080 ( 31 % )                            ;
+; Total registers                ; 14898                                               ;
 ; Total pins                     ; 312 / 395 ( 79 % )                                  ;
 ; Total virtual pins             ; 0                                                   ;
-; Total block memory bits        ; 1,673,708 / 2,528,640 ( 66 % )                      ;
+; Total block memory bits        ; 1,142,320 / 2,528,640 ( 45 % )                      ;
 ; DSP block 9-bit elements       ; 240 / 256 ( 94 % )                                  ;
 ; Total GXB Receiver Channels    ; 1 / 8 ( 13 % )                                      ;
 ; Total GXB Transmitter Channels ; 1 / 8 ( 13 % )                                      ;
 ; Total PLLs                     ; 2 / 4 ( 50 % )                                      ;
-; Total DLLs                     ; 1 / 2 ( 50 % )                                      ;
+; Total DLLs                     ; 0 / 2 ( 0 % )                                       ;
 +--------------------------------+-----------------------------------------------------+
 
 
@@ -307,7 +307,25 @@ applicable agreement for further details.
 ; Fitter                    ; 00:14:25     ; 1.7                     ; 1977 MB             ; 00:21:01                           ;
 ; Assembler                 ; 00:00:12     ; 1.0                     ; 853 MB              ; 00:00:12                           ;
 ; TimeQuest Timing Analyzer ; 00:00:31     ; 1.0                     ; 1264 MB             ; 00:00:32                           ;
-; Total                     ; 05:58:18     ; --                      ; --                  ; 08:16:01                           ;
+; Analysis & Synthesis      ; 00:00:06     ; 1.0                     ; 791 MB              ; 00:00:07                           ;
+; Analysis & Synthesis      ; 00:00:05     ; 1.0                     ; 774 MB              ; 00:00:04                           ;
+; Analysis & Synthesis      ; 00:00:04     ; 1.0                     ; 774 MB              ; 00:00:04                           ;
+; Analysis & Synthesis      ; 00:00:05     ; 1.0                     ; 759 MB              ; 00:00:04                           ;
+; Analysis & Synthesis      ; 00:00:05     ; 1.0                     ; 774 MB              ; 00:00:04                           ;
+; Analysis & Synthesis      ; 00:01:21     ; 1.8                     ; 1092 MB             ; 00:01:30                           ;
+; Partition Merge           ; 00:00:07     ; 1.0                     ; 1073 MB             ; 00:00:07                           ;
+; Analysis & Synthesis      ; 00:00:04     ; 1.0                     ; 779 MB              ; 00:00:04                           ;
+; Analysis & Synthesis      ; 00:01:23     ; 1.1                     ; 1068 MB             ; 00:01:32                           ;
+; Partition Merge           ; 00:00:06     ; 1.0                     ; 1063 MB             ; 00:00:06                           ;
+; Fitter                    ; 00:12:02     ; 1.8                     ; 1823 MB             ; 00:17:59                           ;
+; Assembler                 ; 00:00:15     ; 1.0                     ; 825 MB              ; 00:00:10                           ;
+; TimeQuest Timing Analyzer ; 00:00:20     ; 1.0                     ; 1079 MB             ; 00:00:14                           ;
+; Analysis & Synthesis      ; 00:01:24     ; 2.5                     ; 1118 MB             ; 00:01:33                           ;
+; Partition Merge           ; 00:00:07     ; 1.0                     ; 1071 MB             ; 00:00:06                           ;
+; Fitter                    ; 00:10:28     ; 1.8                     ; 1645 MB             ; 00:15:50                           ;
+; Assembler                 ; 00:00:11     ; 1.0                     ; 821 MB              ; 00:00:10                           ;
+; TimeQuest Timing Analyzer ; 00:00:14     ; 1.0                     ; 1077 MB             ; 00:00:14                           ;
+; Total                     ; 06:26:45     ; --                      ; --                  ; 08:55:59                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
@@ -384,6 +402,24 @@ applicable agreement for further details.
 ; Fitter                    ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
 ; Assembler                 ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
 ; TimeQuest Timing Analyzer ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Partition Merge           ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Partition Merge           ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Fitter                    ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Assembler                 ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; TimeQuest Timing Analyzer ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Analysis & Synthesis      ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Partition Merge           ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Fitter                    ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; Assembler                 ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
+; TimeQuest Timing Analyzer ; braydopc2.jlab.org ; Red Hat ; Red Hat    ; x86_64         ;
 +---------------------------+--------------------+---------+------------+----------------+
 
 
@@ -453,6 +489,24 @@ quartus_fit --read_settings_files=off --write_settings_files=off Fpga -c Fpga
 quartus_asm --read_settings_files=off --write_settings_files=off Fpga -c Fpga
 quartus_sta Fpga -c Fpga
 quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_cdb --read_settings_files=off --write_settings_files=off Fpga -c Fpga --merge=on
+quartus_fit --read_settings_files=off --write_settings_files=off Fpga -c Fpga
+quartus_asm --read_settings_files=off --write_settings_files=off Fpga -c Fpga
+quartus_sta Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_cdb --read_settings_files=off --write_settings_files=off Fpga -c Fpga --merge=on
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
+quartus_cdb --read_settings_files=off --write_settings_files=off Fpga -c Fpga --merge=on
+quartus_fit --read_settings_files=off --write_settings_files=off Fpga -c Fpga
+quartus_asm --read_settings_files=off --write_settings_files=off Fpga -c Fpga
+quartus_sta Fpga -c Fpga
 quartus_map --read_settings_files=on --write_settings_files=off Fpga -c Fpga
 quartus_cdb --read_settings_files=off --write_settings_files=off Fpga -c Fpga --merge=on
 quartus_fit --read_settings_files=off --write_settings_files=off Fpga -c Fpga

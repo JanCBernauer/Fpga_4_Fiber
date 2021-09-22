@@ -1,19 +1,19 @@
-Fitter Status : Successful - Sun Sep 19 20:13:56 2021
+Fitter Status : Successful - Tue Sep 21 23:38:48 2021
 Quartus II 64-Bit Version : 13.0.1 Build 232 06/12/2013 SP 1.78 SJ Full Version
 Revision Name : Fpga
 Top-level Entity Name : Fpga
 Family : Arria GX
 Device : EP1AGX60DF780C6
 Timing Models : Final
-Logic utilization : 53 %
-    Combinational ALUTs : 16,440 / 48,080 ( 34 % )
-    Dedicated logic registers : 17,395 / 48,080 ( 36 % )
-Total registers : 17671
+Logic utilization : 44 %
+    Combinational ALUTs : 12,859 / 48,080 ( 27 % )
+    Dedicated logic registers : 14,807 / 48,080 ( 31 % )
+Total registers : 14898
 Total pins : 312 / 395 ( 79 % )
 Total virtual pins : 0
-Total block memory bits : 1,673,708 / 2,528,640 ( 66 % )
+Total block memory bits : 1,142,320 / 2,528,640 ( 45 % )
 DSP block 9-bit elements : 240 / 256 ( 94 % )
 Total GXB Receiver Channels : 1 / 8 ( 13 % )
 Total GXB Transmitter Channels : 1 / 8 ( 13 % )
 Total PLLs : 2 / 4 ( 50 % )
-Total DLLs : 1 / 2 ( 50 % )
+Total DLLs : 0 / 2 ( 0 % )
