@@ -111,7 +111,7 @@ module PLL_Global_Clk (
 		altpll_component.intended_device_family = "Arria GX",
 		altpll_component.lpm_hint = "CBX_MODULE_PREFIX=PLL_Global_Clk",
 		altpll_component.lpm_type = "altpll",
-		altpll_component.operation_mode = "NORMAL",
+		altpll_component.operation_mode = "SOURCE_SYNCHRONOUS",
 		altpll_component.pll_type = "Enhanced",
 		altpll_component.port_activeclock = "PORT_UNUSED",
 		altpll_component.port_areset = "PORT_UNUSED",
@@ -205,12 +205,12 @@ endmodule
 // Retrieval info: PRIVATE: INT_FEEDBACK__MODE_RADIO STRING "1"
 // Retrieval info: PRIVATE: LOCKED_OUTPUT_CHECK STRING "0"
 // Retrieval info: PRIVATE: LONG_SCAN_RADIO STRING "1"
-// Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE STRING "166.664"
+// Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE STRING "Not Available"
 // Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE_DIRTY NUMERIC "0"
 // Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT0 STRING "deg"
 // Retrieval info: PRIVATE: MIG_DEVICE_SPEED_GRADE STRING "Any"
 // Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "1"
-// Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
+// Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "0"
 // Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "100.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "0"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
@@ -240,7 +240,7 @@ endmodule
 // Retrieval info: PRIVATE: SPREAD_FREQ_UNIT STRING "KHz"
 // Retrieval info: PRIVATE: SPREAD_PERCENT STRING "0.500"
 // Retrieval info: PRIVATE: SPREAD_USE STRING "0"
-// Retrieval info: PRIVATE: SRC_SYNCH_COMP_RADIO STRING "0"
+// Retrieval info: PRIVATE: SRC_SYNCH_COMP_RADIO STRING "1"
 // Retrieval info: PRIVATE: STICKY_CLK0 STRING "1"
 // Retrieval info: PRIVATE: SWITCHOVER_COUNT_EDIT NUMERIC "1"
 // Retrieval info: PRIVATE: SWITCHOVER_FEATURE_ENABLED STRING "1"
@@ -259,7 +259,7 @@ endmodule
 // Retrieval info: CONSTANT: INCLK1_INPUT_FREQUENCY NUMERIC "24000"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Arria GX"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
-// Retrieval info: CONSTANT: OPERATION_MODE STRING "NORMAL"
+// Retrieval info: CONSTANT: OPERATION_MODE STRING "SOURCE_SYNCHRONOUS"
 // Retrieval info: CONSTANT: PLL_TYPE STRING "Enhanced"
 // Retrieval info: CONSTANT: PORT_ACTIVECLOCK STRING "PORT_UNUSED"
 // Retrieval info: CONSTANT: PORT_ARESET STRING "PORT_UNUSED"

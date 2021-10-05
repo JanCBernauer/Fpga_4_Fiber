@@ -225,7 +225,7 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire [12:0] Output_Fifo_Wc;
 
 	wire trigger_time_fifo_rd, trigger_time_fifo_rd_evb, trigger_time_fifo_full, trigger_time_fifo_empty, tdc_select;
-	wire [7:0] trigger_time_fifo_data, EventBuilder_BlockCnt, Obuf_BlockCnt;
+	wire [47:0] trigger_time_fifo_data, EventBuilder_BlockCnt, Obuf_BlockCnt;
 
 	wire ck_40MHz_from_Bkplane, P0CkPll_Locked, ck_40MHz_Main;
 	wire pll_clock_switch0, pll_clock_switch1;
@@ -294,9 +294,10 @@ assign I2C_SDA_OUT = (sda_oeB == 0) ? 0 : 1'bz;
 assign I2C_SCL = (scl_oeB == 0) ? 0 : 1'bz;
 //assign I2C_SCL = scl_oeB;
 
-
-assign internal_user_in[0] = ~IoConfig[0] ? USER_IN_TTL[0] : ~USER_IN_NIM[0];	// LVTTL default
-assign internal_user_in[1] = ~IoConfig[1] ? USER_IN_TTL[1] : 1'b0;	//~USER_IN_NIM[1];	// LVTTL default (NIM disabled for user_in since it has switched to clock)
+reg USER_IN_NIM_reg0;
+reg [1:0] USER_IN_TTL_reg;
+assign internal_user_in[0] = ~IoConfig[0] ? USER_IN_TTL_reg[0] : ~USER_IN_NIM_reg0;	// LVTTL default
+assign internal_user_in[1] = ~IoConfig[1] ? USER_IN_TTL_reg[1] : 1'b0;	//~USER_IN_NIM[1];	// LVTTL default (NIM disabled for user_in since it has switched to clock)
 
 assign SEL_OUT[0] = IoConfig[2];	// LVTTL default
 assign SEL_OUT[1] = IoConfig[3];	// LVTTL default
@@ -383,12 +384,11 @@ assign Retry_Rd = SPARE3;
 
 // TBD: CHECK THAT BOTH trigger AND sync SIGNALS WIDTH MUST BE AT LEAST 25 ns
 // TBD: NEED TO SYNCHRONIZE THEM ???
-assign incoming_trigger = (EnTrig1P0 & TRIG1_IN) |
-		 (EnTrig2P0 & TRIG2_IN) |
-		 (EnTrigFront & internal_user_in[0]) |
-		 sw_apv_trig;
-
-assign sync = (EnSyncP0 & SYNC_IN) | (EnSyncFront & internal_user_in[1]) | sw_apv_reset;
+// TRIG/SYNC are synchronous to APV_CLOCK. Will mux FP user in 0. Need to
+// properly sync sw_apv_trig/reset...(not used in production though so don't
+// care too much other than for cleaning up timing report)
+assign incoming_trigger = (EnTrigFront & internal_user_in[0]) | sw_apv_trig;
+assign sync             = (EnSyncFront & internal_user_in[0]) | sw_apv_reset;
 
 
 assign data_from_master  = Fiber_enabled ?  data_from_fiber : data_from_vme;
@@ -403,6 +403,8 @@ assign APV_CLOCK = ck_40MHz;
 	begin
 		APV_RESET <= RSTb_sync & ~i2c_ApvReset;
 		BUSY_OUT <= internal_trigger_disabled | (FifoLevel1&UseSdramFifo) | (EvbFifoAlmostFull&~UseSdramFifo);
+		USER_IN_NIM_reg0 <= USER_IN_NIM[0];
+		USER_IN_TTL_reg <= USER_IN_TTL;
 	end
 
 	OneShot TurnOnLed0(.OUT(LED[0]), .START(VME_DTACK_EN | Fiber_activity), .CK(ck_1MHz), .RSTb(RSTb_sync));
@@ -882,15 +884,6 @@ TrigGen ApvTriggerHandler(.APV_TRG(APV_TRIGGER), .RESET101(apv_reset101), .RSTb(
 	.TRIGGER_DISABLED(internal_trigger_disabled), .TRIGGER_DELAY(TriggerDelay),
 	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL));	// BUSY signal
 
-TrigMeas TriggerMeasurements(.FAST_CK(ADC_LCLK1), .RSTb(RSTb_sync),
-	.START_TDC(APV_CLOCK), .STOP_TDC(incoming_trigger),
-	.ALL_CLEAR(AllClear), .TDC_SELECT(tdc_select),
-	.TRIGGER_TIME_FIFO_RD(trigger_time_fifo_rd|trigger_time_fifo_rd_evb),  .TRIGGER_TIME_FIFO_CK(Vme_clock),
-	.TRIGGER_TIME_FIFO(trigger_time_fifo_data),
-	.TRIGGER_TIME_FIFO_FULL(trigger_time_fifo_full), .TRIGGER_TIME_FIFO_EMPTY(trigger_time_fifo_empty));
-
-
-
 EightChannels ApvProcessor_0_7(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK1), .PROCESS_CLK(Vme_clock),
 	.ENABLE(ApvEnable[7:0]),
 	.EN_BASELINE_SUBTRACTION(en_baseline_subtraction),
@@ -1001,13 +994,12 @@ FifoIf DebugFifoIf(.FIFO_RD(ApvFifo_read),
 	);
 
 	
-EventBuilder TheBuilder(.RSTb(RSTb_sync), .TIME_CLK(APV_CLOCK), .CLK(Vme_clock),
+EventBuilder TheBuilder(.RSTb(RSTb_sync), .APV_CLOCK(APV_CLOCK), .CLK(Vme_clock),
 //	.TRIGGER(incoming_trigger),	// Incoming trigger pulse
 	.TRIGGER(apv_trigger_pulse),	// Pulse sent to APVs
 	.ALL_CLEAR(AllClear),
 	.SAMPLE_PER_EVENT(SamplePerEvent), .EVENT_PER_BLOCK(EventPerBlock),
 	.ENABLE_MASK(ApvEnable), .ENABLE_EVBUILD(Enable_EventBuilder),
-	.TRIGGER_TIME_FIFO(trigger_time_fifo_data), .TRIGGER_TIME_FIFO_RD(trigger_time_fifo_rd_evb),
 	.DISABLE_DEADLOCK(disable_evb_deadlock),
 	.CH_DATA0(EvbData0), .CH_DATA1(EvbData1),
 	.CH_DATA2(EvbData2), .CH_DATA3(EvbData3),

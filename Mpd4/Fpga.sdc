@@ -47,6 +47,7 @@ create_clock -name GXB_CK -period 16.0 [get_ports GXB_CK]
 create_generated_clock -source [get_ports {MASTER_CLOCK2}] -divide_by 1 -multiply_by 1 -duty_cycle 50 -phase 0 -offset 0 \
 	[get_nets {Ck40Mux_Inst|CK40_MUX_altclkctrl_hfe_component|wire_clkctrl1_outclk}]
 
+	
 #create_generated_clock -source [get_ports {MASTER_CLOCK2}] -divide_by 1 -multiply_by 1 -duty_cycle 28 -phase 0 -offset 0 \	
 #	[get_nets {VmeSlaveIf:VmeIf|CtrlFsm:DataCycleController|USER_REb}]
 	
@@ -58,6 +59,9 @@ set Vme_Ref_Ck Ck_100MHz_virt
 set Adc_Ref_Ck Ck_40MHz_virt
 set AdcCfg_Ref_Ck Ck_10MHz_virt
 set Apv_Ref_Ck Ck_40MHz_virt
+
+set_false_path -from [get_clocks {PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1}] -to [get_clocks {PLL_Global_Clk_inst|altpll_component|pll|clk[0]}];
+set_false_path -from [get_clocks {PLL_Global_Clk_inst|altpll_component|pll|clk[0]}] -to [get_clocks {PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1}];
 
 set_clock_groups -asynchronous -group { \
 	MASTER_CLOCK \

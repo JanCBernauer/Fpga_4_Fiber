@@ -89,12 +89,12 @@ BLOCK_TRAILER
 // Original 32-bit definition, compliant with Jlab DAQ (hope)
 `define BLOCK_HEADER	{1'b1, 4'h0, MODULE_ID, 3'b0, EVENT_PER_BLOCK, 3'b0, BLOCK_CNT[7:0]}
 `define BLOCK_TRAILER	{1'b1, 4'h1, MODULE_ID, 2'b0, BlockWordCounter}
-`define EVENT_HEADER	{1'b1, 4'h2, 7'b0, EventCounterFifo_Data}
+`define EVENT_HEADER	{1'b1, 4'h2, 7'b0, EventCounter}
 `define TRIGGER_TIME1	{1'b1, 4'h3, 3'b0, TimeCounterFifo_Data[47:24]}
-`define TRIGGER_TIME2	{1'b0, 4'h0, 3'b0, TimeCounterFifo_Data[23:0]}	// why {1'b0, 4'h0, ...}? should be {1'b0, 4'h3, ...}!
+`define TRIGGER_TIME2	{1'b0, 4'h0, 3'b0, TimeCounterFifo_Data[23:0]}
 `define APV_CH_HEADER   {1'b1, 4'h4, ChCounterLsb[3:0], ChannelData_a[23:21],ChannelData_a[20:13], ChannelData_a[11:0]} // ChannelData_a[23:21]=sampleCounter,ChannelData_a[20:13]=frameCounter,ChannelData_a[11:0]=APVheader
 `define APV_CH_DATA		{1'b0, 5'b0, ChannelData_a[25:0]}
-`define EVENT_TRAILER	{1'b1, 4'h5, 3'b0, LoopDataCounter[11:0], 4'b0, TRIGGER_TIME_FIFO}
+`define EVENT_TRAILER	{1'b1, 4'h5, 3'b0, LoopDataCounter[11:0], 4'b0, 8'b0}
 `define DATA_NOT_VALID	{1'b1, 4'hE, 27'b0}
 `define FILLER_WORD		{1'b1, 4'hF, 27'b0}
 `else
@@ -102,11 +102,11 @@ BLOCK_TRAILER
 // assuming TimeCounter[39:0] instead of [47:0]
 `define BLOCK_HEADER	{3'h0, MODULE_ID, EVENT_PER_BLOCK, BLOCK_CNT[7:0]}
 `define BLOCK_TRAILER	{3'h1, 1'b0, BlockWordCounter}
-`define EVENT_HEADER	{3'h2, 1'b0, EventCounterFifo_Data}
+`define EVENT_HEADER	{3'h2, 1'b0, EventCounter}
 `define TRIGGER_TIME1	{3'h3, 1'b0, TimeCounterFifo_Data[39:20]}
 `define TRIGGER_TIME2	{3'h3, 1'b1, TimeCounterFifo_Data[19:0]}
 `define APV_CH_DATA		{3'h4, ChannelData_a[20:0]}
-`define EVENT_TRAILER	{3'h5, 1'b0, LoopDataCounter[11:0], TRIGGER_TIME_FIFO}
+`define EVENT_TRAILER	{3'h5, 1'b0, LoopDataCounter[11:0], 8'b0}
 `define DATA_NOT_VALID	{3'h6, 21'b0}
 `define FILLER_WORD		{3'h7, 21'b0}
 `endif
@@ -115,9 +115,8 @@ BLOCK_TRAILER
 `define MAX_LOOP_DATA	35246	// 133 * 16 * 16, should be 133 * enabled_channels * SAMPLE_PER_EVENT
 
 
-module EventBuilder(RSTb, TIME_CLK, CLK, TRIGGER, ALL_CLEAR, SAMPLE_PER_EVENT, EVENT_PER_BLOCK,
+module EventBuilder(RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR, SAMPLE_PER_EVENT, EVENT_PER_BLOCK,
 	ENABLE_MASK, ENABLE_EVBUILD,
-	TRIGGER_TIME_FIFO, TRIGGER_TIME_FIFO_RD,
 	DISABLE_DEADLOCK,
 	CH_DATA0, CH_DATA1, CH_DATA2, CH_DATA3, CH_DATA4, CH_DATA5, CH_DATA6, CH_DATA7,
 	CH_DATA8, CH_DATA9, CH_DATA10, CH_DATA11, CH_DATA12, CH_DATA13, CH_DATA14, CH_DATA15,
@@ -126,13 +125,11 @@ module EventBuilder(RSTb, TIME_CLK, CLK, TRIGGER, ALL_CLEAR, SAMPLE_PER_EVENT, E
 	EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L
 );
 
-input RSTb, TIME_CLK, CLK, TRIGGER, ALL_CLEAR;
+input RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR;
 input [4:0] SAMPLE_PER_EVENT;
 input [7:0] EVENT_PER_BLOCK;
 input [15:0] ENABLE_MASK;
 input ENABLE_EVBUILD;
-input [7:0] TRIGGER_TIME_FIFO;
-output TRIGGER_TIME_FIFO_RD;
 input DISABLE_DEADLOCK;
 input [25:0] CH_DATA0, CH_DATA1, CH_DATA2, CH_DATA3, CH_DATA4, CH_DATA5, CH_DATA6, CH_DATA7;
 input [25:0] CH_DATA8, CH_DATA9, CH_DATA10, CH_DATA11, CH_DATA12, CH_DATA13, CH_DATA14, CH_DATA15;
@@ -155,7 +152,6 @@ output EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L;
 reg [15:0] DATA_RD;
 reg [15:0] DECREMENT_EVENT_COUNT;
 reg [7:0] BLOCK_CNT;
-reg TRIGGER_TIME_FIFO_RD;
 
 reg [19:0] EventCounter;
 reg [19:0] BlockWordCounter;
@@ -172,14 +168,13 @@ reg [11:0] DataWordCount;
 reg [25:0] ChannelData_a;
 
 wire AllEnabledChannelsHaveEvent;
-reg EventCounterFifo_Read, TimeCounterFifo_Read, OutputFifo_Write;
-wire EventCounterFifo_Empty, EventCounterFifo_Full, TimeCounterFifo_Empty, TimeCounterFifo_Full;
-wire [19:0] EventCounterFifo_Data;
+reg TimeCounterFifo_Read, OutputFifo_Write;
+wire TimeCounterFifo_Empty, TimeCounterFifo_Full;
 wire [47:0] TimeCounterFifo_Data;
-reg trigger_pulse, old_trigger, old_trigger2;
 reg clear_time_counter;
 reg FifoReset, ClearLoopDataCounter;
 reg IncrementBlockCounter, ClearBlockWordCounter;
+reg IncrementEventCounter;
 //wire [2:0] NumberFillerWords;
 wire [1:0] NumberFillerWords;
 //reg [2:0] FillerWordsCounter;
@@ -203,22 +198,25 @@ assign ChCounterLsb = ChCounter[3:0];
 always @(posedge CLK)
 	OutputFifoAlmostFull <= (DATA_OUT_CNT[10:0] > (2048-384) ) ? 1 : 0;
 
-always @(posedge CLK)
+always @(posedge APV_CLOCK)
 	FifoReset <= ~RSTb | ALL_CLEAR;
 
 SReg EvbFifoFullReg(.CK(CLK), .RSTb(RSTb), .CLR(ALL_CLEAR), .SET(FULL), .OUT(EVB_FIFO_FULL_L));
-SReg EventFifoFullReg(.CK(CLK), .RSTb(RSTb), .CLR(ALL_CLEAR), .SET(EventCounterFifo_Full), .OUT(EVENT_FIFO_FULL_L));
+//SReg EventFifoFullReg(.CK(CLK), .RSTb(RSTb), .CLR(ALL_CLEAR), .SET(EventCounterFifo_Full), .OUT(EVENT_FIFO_FULL_L));
+assign EVENT_FIFO_FULL_L = 0;
 SReg TimeFifoFullReg(.CK(CLK), .RSTb(RSTb), .CLR(ALL_CLEAR), .SET(TimeCounterFifo_Full), .OUT(TIME_FIFO_FULL_L));
 
-Fifo_16x20 EventCounterFifo(.aclr(FifoReset), .clock(CLK),
-	.data(EventCounter), .wrreq(trigger_pulse),
-	.q(EventCounterFifo_Data), .rdreq(EventCounterFifo_Read),
-	.empty(EventCounterFifo_Empty), .full(EventCounterFifo_Full));
-
-Fifo_16x48 TimeCounterFifo(.aclr(FifoReset), .clock(CLK),
-	.data(TimeCounter), .wrreq(trigger_pulse),
-	.q(TimeCounterFifo_Data), .rdreq(TimeCounterFifo_Read),
-	.empty(TimeCounterFifo_Empty), .full(TimeCounterFifo_Full));
+DcFifo_16x48 TimeCounterFifo(
+  .aclr(FifoReset),
+	.data(TimeCounter),
+  .rdclk(CLK),
+  .rdreq(TimeCounterFifo_Read),
+  .wrclk(APV_CLOCK),
+  .wrreq(trigger),
+	.q(TimeCounterFifo_Data),
+	.rdempty(TimeCounterFifo_Empty),
+  .wrfull(TimeCounterFifo_Full)
+);
 
 assign DATA_OUT_CNT[11] = FULL;
 `ifdef SIZE_32
@@ -232,26 +230,6 @@ Fifo_2048x24 OutputFifo(.aclr(FifoReset), .clock(CLK),
 	.q(DATA_OUT), .rdreq(DATA_OUT_RD),
 	.empty(EMPTY), .full(FULL), .usedw(DATA_OUT_CNT[10:0]));
 `endif
-
-// trigger_pulse
-	always @(posedge CLK or negedge RSTb)
-	begin
-		if( RSTb == 0 )
-		begin
-			trigger_pulse <= 0;
-			old_trigger <= 0;
-			old_trigger2 <= 0;
-		end
-		else
-		begin
-			old_trigger <= TRIGGER;
-			old_trigger2 <= old_trigger;
-			if( old_trigger2 == 0 && old_trigger == 1 )
-				trigger_pulse <= 1;
-			else
-				trigger_pulse <= 0;
-		end
-	end
 
 // Data Counter (for loop checking)
 	always @(posedge CLK or negedge RSTb)
@@ -278,7 +256,7 @@ Fifo_2048x24 OutputFifo(.aclr(FifoReset), .clock(CLK),
 			if( ALL_CLEAR == 1 )
 				EventCounter <= 20'h00001;
 			else
-				if( trigger_pulse == 1 )
+				if( IncrementEventCounter == 1 )
 					EventCounter <= EventCounter + 1;
 		end
 	end
@@ -314,24 +292,21 @@ Fifo_2048x24 OutputFifo(.aclr(FifoReset), .clock(CLK),
 	end
 
 // TIME Counter
-	always @(posedge TIME_CLK)
+	always @(posedge APV_CLOCK)
 		clear_time_counter <= ALL_CLEAR;
 
-	always @(posedge TIME_CLK or negedge RSTb)
+	always @(posedge APV_CLOCK or negedge RSTb)
 	begin
 		if( RSTb == 0 )
-			AsyncTimeCounter <= 0;
+			TimeCounter <= 0;
 		else
 		begin
 			if( clear_time_counter == 1 )
-				AsyncTimeCounter <= 0;
+				TimeCounter <= 0;
 			else
-				AsyncTimeCounter <= AsyncTimeCounter + 1;
+				TimeCounter <= TimeCounter + 1;
 		end
 	end
-// Everything must be synchronous with CLK
-	always @(posedge CLK)
-		TimeCounter <= AsyncTimeCounter;
 
 // Channel Data Selector
 	always @(*)
@@ -363,15 +338,14 @@ Fifo_2048x24 OutputFifo(.aclr(FifoReset), .clock(CLK),
 		begin
 			DATA_RD <= 0;
 			DECREMENT_EVENT_COUNT <= 0;
-			TRIGGER_TIME_FIFO_RD <= 0;
 			ChCounter <= 0;
-			EventCounterFifo_Read <= 0;
 			TimeCounterFifo_Read <= 0;
 			OutputFifo_Write <= 0;
 			DataWordCount <= 0;
 			data_bus <= 0;
 			ClearLoopDataCounter <= 0;
 			IncrementBlockCounter <= 0;
+			IncrementEventCounter <= 0;
 			ClearBlockWordCounter <= 0;
 			LoopEventCounter <= 0;
 			LoopSampleCounter <= 0;
@@ -393,14 +367,13 @@ end
 */
 						DATA_RD <= 0;
 						DECREMENT_EVENT_COUNT <= 0;
-						TRIGGER_TIME_FIFO_RD <= 0;
 						ChCounter <= 0;
-						EventCounterFifo_Read <= 0;
 						TimeCounterFifo_Read <= 0;
 						OutputFifo_Write <= 0;
 						DataWordCount <= 0;
 						ClearLoopDataCounter <= 0;
 						IncrementBlockCounter <= 0;
+						IncrementEventCounter <= 0;
 						ClearBlockWordCounter <= 1;
 						LoopEventCounter <= 0;
 						LoopSampleCounter <= 0;
@@ -416,7 +389,7 @@ end
 							fsm_status <= 0;
 						else
 						begin
-							if( ~EventCounterFifo_Empty )
+							if( ~TimeCounterFifo_Empty)
 							begin
 $display("@%0t EventBuilder BLOCK_HEADER: 0x%0x", $stime, `BLOCK_HEADER);
 								OutputFifo_Write <= 1;
@@ -428,13 +401,13 @@ $display("@%0t EventBuilder BLOCK_HEADER: 0x%0x", $stime, `BLOCK_HEADER);
 $display("@%0t EventBuilder EVENT_HEADER: 0x%0x", $stime, `EVENT_HEADER);
 						data_bus <= `EVENT_HEADER;
 						OutputFifo_Write <= 1;
-						EventCounterFifo_Read <= 1;
+						IncrementEventCounter <= 1;
 						fsm_status <= 3;
 					end
 				3:	begin
 $display("@%0t EventBuilder TRIGGER_TIME1: 0x%0x", $stime, `TRIGGER_TIME1);
 						data_bus <= `TRIGGER_TIME1;
-						EventCounterFifo_Read <= 0;
+			      IncrementEventCounter <= 0;
 						fsm_status <= 4;
 					end
 				4:	begin
@@ -537,14 +510,12 @@ $display("@%0t EventBuilder Channel Trailer[%d]: 0x%0x", $stime, ChCounter, `APV
 						end
 					end
 				10:	begin
-						TRIGGER_TIME_FIFO_RD <= 1;
 						if( ChCounter == 5'h0F )
 							fsm_status <= 11;
 						else
 							fsm_status <= 15;
 					end
 				11:	begin
-						TRIGGER_TIME_FIFO_RD <= 0;
 //						DECREMENT_EVENT_COUNT <= 0;
 $display("@%0t EventBuilder Event Trailer: 0x%0x", $stime, `EVENT_TRAILER);
 						data_bus <= `EVENT_TRAILER;
@@ -561,7 +532,7 @@ $display("@%0t EventBuilder Event Trailer: 0x%0x", $stime, `EVENT_TRAILER);
 							fsm_status <= 13;
 						end
 						else
-							if( ~EventCounterFifo_Empty )
+							if( ~TimeCounterFifo_Empty )
 							begin
 //								data_bus <= `EVENT_HEADER;
 								fsm_status <= 2;
@@ -587,7 +558,6 @@ $display("@%0t EventBuilder Block Trailer: 0x%0x", $stime, `BLOCK_TRAILER);
 						fsm_status <= 0;
 					end					
 				15:	begin	// wait for AllEnabledChannelsHaveEvent update
-						TRIGGER_TIME_FIFO_RD <= 0;
 						fsm_status <= 16;
 					end
 				16:	begin

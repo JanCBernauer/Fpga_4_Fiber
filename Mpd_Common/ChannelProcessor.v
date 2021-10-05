@@ -54,7 +54,8 @@ wire [20:0] output_fifo_data;
 wire decoded_event_present, end_processing, decoded_frame_fifo_rd;
 wire [11:0] OutputUsedWords, FrameDecoderUsedWords;
 wire OutputFifoEmpty, OutputFifoFull, FrameDecoderFifoEmpty, FrameDecoderFifoFull;
-wire aclr, rdreq, rdempty;
+wire rdreq, rdempty;
+reg aclr;
 //reg DisableMode, SampleMode, ApvReadoutMode_Simple, NoProcessorMode;
 reg ApvReadoutMode_Processed;
 
@@ -73,7 +74,6 @@ end
 
 assign DATA_OUT = decoded_frame_data;
 assign DATA_OUT_EVB = decoded_frame_data;
-assign aclr = ~RSTb | ALL_CLEAR;	
 assign rdreq = ~rdempty;
 
 SReg ApvFifoFullReg(.CK(CLK), .RSTb(RSTb), .CLR(ALL_CLEAR), .SET(FrameDecoderFifoFull), .OUT(APV_FIFO_FULL_L));
@@ -95,6 +95,9 @@ ApvReadout ApvFrameDecoder(.RSTb(RSTb), .CLK(CLK_APV), .ENABLE(CH_ENABLE), .ADC_
 	);
 
 // Note: end_process is form CLK_APV domain (longer period that CLK) -> resync inside
+always @(posedge CLK_APV)
+  aclr <= ~RSTb | ALL_CLEAR;	
+
 Fifo_16x1 inc_resync(.aclr(aclr), .data(1'b0), .rdclk(CLK), .rdreq(rdreq), .wrclk(CLK_APV), .wrreq(end_processing), .q(), .rdempty(rdempty), .wrfull());
 	
 FiveBitCounter EvCounter(.RSTb(RSTb & ~ALL_CLEAR), .CLK(CLK), .INC(rdreq),
@@ -602,7 +605,7 @@ input [7:0] OBUF_BLOCK_CNT;
 input [31:0] TRIGGER_COUNTER;
 input SDRAM_INITIALIZED;
 output TRIGGER_TIME_FIFO_RD;
-input [7:0] TRIGGER_TIME_FIFO;
+input [47:0] TRIGGER_TIME_FIFO;
 input TRIGGER_TIME_FIFO_FULL, TRIGGER_TIME_FIFO_EMPTY;
 input [24:0] SDRAM_FIFO_WRITE_ADDRESS, SDRAM_FIFO_READ_ADDRESS, SDRAM_FIFO_WORDCOUNT;
 input SDRAM_FIFO_OVERRUN, OUTPUT_FIFO_FULL, OUTPUT_FIFO_EMPTY;
@@ -866,7 +869,7 @@ begin
 						FIFO_EMPTY[15:1], EV_BUILDER_FIFO_EMPTY} : {FIFO_FULL, FIFO_EMPTY};	// 0x30040
 		16'b1100_0000_0001_0001: int_data <= {SYNCED, ERROR};	// 0x30044
 
-		16'b1100_0000_0001_1000: int_data <= {TRIGGER_TIME_FIFO_FULL, TRIGGER_TIME_FIFO_EMPTY, 22'h0, TRIGGER_TIME_FIFO};	// 0x30060
+		16'b1100_0000_0001_1000: int_data <= {TRIGGER_TIME_FIFO_FULL, TRIGGER_TIME_FIFO_EMPTY, 22'h0, TRIGGER_TIME_FIFO[7:0]};	// 0x30060
 
 		16'b0000_0000_1000_0000: int_data <= {4'h0, OUTPUT_FIFO_FULL_L, EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L,
 												6'h0, EV_BUILDER_FIFO_FULL, EV_BUILDER_FIFO_EMPTY, EV_BUILDER_FIFO_WC};	// 0x200
