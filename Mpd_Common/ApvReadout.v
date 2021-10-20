@@ -16,7 +16,7 @@ module ApvReadout(RSTb, CLK, ENABLE, ADC_PDATA, SYNC_PERIOD, SYNCED, ERROR,
 	HIGH_ONE, LOW_ZERO, FIFO_CLEAR, DAQ_MODE,
 	NO_MORE_SPACE_FOR_EVENT, USED_FIFO_WORDS, ONE_MORE_EVENT,
 	MARKER_CH, SAMPLE_PER_EVENT, END_FRAME,
-	APV_WRITE_ON_FULL
+	missed_event_cnt, writefull_cnt
 	);
 
 input RSTb, CLK, ENABLE;
@@ -36,9 +36,9 @@ output ONE_MORE_EVENT;
 input [7:0] MARKER_CH;
 input [4:0] SAMPLE_PER_EVENT;
 output END_FRAME;
-output APV_WRITE_ON_FULL;
+output [7:0] missed_event_cnt;
+output [7:0] writefull_cnt;
 
-reg APV_WRITE_ON_FULL;
 reg [11:0] ADC_PDATA_REG;
 reg END_FRAME, HEADER_SEEN;
 reg fifo_write, data_frame, analog_data;
@@ -61,10 +61,12 @@ wire [11:0] header_trailer, header;
 reg [7:0] frame_counter;
 wire [12:0] data_plus_offset_logic, data_offset_minus_pedestal_logic, data_offset_minus_pedestal_logic_mkr;
 reg [7:0] n_channel;
-reg complete_event;
+reg complete_event, missed_event;
 reg [4:0] ApvSampleCounter;
 wire [3:0] ApvSampleCounterMinusOne;
 reg ClearApvSampleCounter;
+reg [7:0] missed_event_cnt;
+reg [7:0] writefull_cnt;
 
 assign ERROR = write_fifo_full;
 
@@ -110,7 +112,6 @@ ApvDataFifo_4096x13_26 DataFifo(
 // Synchronizer
 always @(posedge CLK)
 begin
-	APV_WRITE_ON_FULL <= fifo_write& write_fifo_full;
 	ADC_PDATA_REG <= ADC_PDATA;
 	apv_mode <= (DAQ_MODE == 3'b001 || DAQ_MODE == 3'b011) ? 1 : 0;	// Simple or Processed
 	sample_mode <= (DAQ_MODE == 3'b010) ? 1 : 0;
@@ -120,6 +121,37 @@ begin
 	fifo_data_in <= analog_data ? data_offset_minus_pedestal_logic_mkr : {1'b0, header_trailer};
 end
 
+// Missed Event Counter
+always @(posedge CLK or posedge FIFO_CLEAR)
+begin
+	if( FIFO_CLEAR == 1 )
+	begin
+		missed_event_cnt <= 0;
+	end
+	else
+	begin
+		if( missed_event && missed_event_cnt!=8'hFF)
+		begin
+			missed_event_cnt <= missed_event_cnt + 1'b1;
+		end
+	end
+end
+
+// Write of Full Counter
+always @(posedge CLK or posedge FIFO_CLEAR)
+begin
+	if( FIFO_CLEAR == 1 )
+	begin
+		writefull_cnt <= 0;
+	end
+	else
+	begin
+		if( fifo_write && write_fifo_full && writefull_cnt!=8'hFF)
+		begin
+			writefull_cnt <= writefull_cnt + 1'b1;
+		end
+	end
+end
 
 // Frame Counter
 always @(posedge CLK or posedge FIFO_CLEAR)
@@ -170,6 +202,7 @@ begin
 		END_FRAME <= 0;
 		HEADER_SEEN <= 0;
 		ClearApvSampleCounter <= 0;
+		missed_event <= 0;
 	end
 	else
 	begin
@@ -216,6 +249,7 @@ begin
 				else
 				begin
 					complete_event <= 0;
+					missed_event <= 0;
 					HEADER_SEEN <= 1;
 					fsm_status <= 4;
 				end
@@ -223,11 +257,12 @@ begin
 			4: begin // Write original header
 				bit_count <= 0;
 				HEADER_SEEN <= 0;
-				//if( NO_MORE_SPACE_FOR_EVENT == 0 )
-				//begin
-					complete_event <= 1;
-					fifo_write <= 1;
-				//end
+				if( NO_MORE_SPACE_FOR_EVENT == 0 )
+				begin
+					missed_event <= 1;
+				end
+				complete_event <= 1;
+				fifo_write <= 1;
 				fsm_status <= 41;
 			   end
 		
@@ -235,6 +270,7 @@ begin
 			// remove old trailer to send even number samples per frame
 			// need to add extra delay analog APV data into FIFO due to this extra stage...
 			41: begin
+				missed_event <= 0;
 				bit_count <= 0;
 				analog_data <= 1;
 				fsm_status <= 5;

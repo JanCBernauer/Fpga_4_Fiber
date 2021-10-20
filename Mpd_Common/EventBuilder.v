@@ -122,7 +122,8 @@ module EventBuilder(RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR, SAMPLE_PER_EVENT, 
 	CH_DATA8, CH_DATA9, CH_DATA10, CH_DATA11, CH_DATA12, CH_DATA13, CH_DATA14, CH_DATA15,
 	DATA_RD, EVENT_PRESENT, DECREMENT_EVENT_COUNT, MODULE_ID,
 	DATA_OUT, EMPTY, FULL, ALMOST_FULL, DATA_OUT_CNT, DATA_OUT_RD, EV_CNT, BLOCK_CNT,
-	EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L
+	EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L,
+	WAITING_ON_APV_MASK
 );
 
 input RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR;
@@ -148,7 +149,9 @@ input DATA_OUT_RD;
 output [23:0] EV_CNT;
 output [7:0] BLOCK_CNT;
 output EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L;
+output [15:0] WAITING_ON_APV_MASK;
 
+reg [15:0] WAITING_ON_APV_MASK;
 reg [15:0] DATA_RD;
 reg [15:0] DECREMENT_EVENT_COUNT;
 reg [7:0] BLOCK_CNT;
@@ -212,7 +215,7 @@ DcFifo_16x48 TimeCounterFifo(
   .rdclk(CLK),
   .rdreq(TimeCounterFifo_Read),
   .wrclk(APV_CLOCK),
-  .wrreq(trigger),
+  .wrreq(TRIGGER),
 	.q(TimeCounterFifo_Data),
 	.rdempty(TimeCounterFifo_Empty),
   .wrfull(TimeCounterFifo_Full)
@@ -353,6 +356,7 @@ Fifo_2048x24 OutputFifo(.aclr(FifoReset), .clock(CLK),
 			ChannelWaitCounter <= 0;
 			FrameWaitCounter <= 0;
 			fsm_status <= 0;
+			WAITING_ON_APV_MASK <= 0;
 		end
 		else
 		begin
@@ -379,6 +383,7 @@ end
 						LoopSampleCounter <= 0;
 						ChannelWaitCounter <= 0;
 						FrameWaitCounter <= 0;
+						WAITING_ON_APV_MASK <= 0;
 						if( ENABLE_EVBUILD == 1 && ALL_CLEAR == 0 )
 							fsm_status <= 1;
 					end
@@ -407,7 +412,7 @@ $display("@%0t EventBuilder EVENT_HEADER: 0x%0x", $stime, `EVENT_HEADER);
 				3:	begin
 $display("@%0t EventBuilder TRIGGER_TIME1: 0x%0x", $stime, `TRIGGER_TIME1);
 						data_bus <= `TRIGGER_TIME1;
-			      IncrementEventCounter <= 0;
+						IncrementEventCounter <= 0;
 						fsm_status <= 4;
 					end
 				4:	begin
@@ -422,6 +427,7 @@ $display("@%0t EventBuilder TRIGGER_TIME2: 0x%0x", $stime, `TRIGGER_TIME2);
 						OutputFifo_Write <= 0;
 						LoopSampleCounter <= 0;
 						FrameWaitCounter <= 0;
+						TimeCounterFifo_Read <= 0;
 						if( ChCounter == 5'h10 )
 							fsm_status <= 11;
 						if( ChCounter != 5'h10 && ENABLE_MASK[ChCounterLsb] == 1 )
@@ -432,30 +438,35 @@ $display("@%0t EventBuilder TRIGGER_TIME2: 0x%0x", $stime, `TRIGGER_TIME2);
 				6:	begin
 						ChannelWaitCounter <= 0;
 						FrameWaitCounter <= FrameWaitCounter + 1;
-						TimeCounterFifo_Read <= 0;
 						ClearLoopDataCounter <= 0;
 						OutputFifo_Write <= 0;
 						DataWordCount <= 0;
 						DECREMENT_EVENT_COUNT <= 0;
-						if( DISABLE_DEADLOCK == 1 && AtLeastOneChannelHasEvent && FrameWaitCounter < 10'h3FF )		// Revised
-							fsm_status <= 20;
+//						if( DISABLE_DEADLOCK == 1 && AtLeastOneChannelHasEvent && FrameWaitCounter < 10'h3FF )		// Revised
+//							fsm_status <= 20;
+//						if( DISABLE_DEADLOCK == 0 && ChannelHasEvent[ChCounterLsb] == 1 )
 						if( DISABLE_DEADLOCK == 0 && ChannelHasEvent[ChCounterLsb] == 1 )
-							fsm_status <= 17;
+						begin
+								fsm_status <= 17;
+								WAITING_ON_APV_MASK <= 0;
+						end
+						else
+							WAITING_ON_APV_MASK <= 1<<ChCounterLsb;
 						if( ENABLE_EVBUILD == 0 || ALL_CLEAR == 1 )
 							fsm_status <= 0;
-						if( DISABLE_DEADLOCK == 1 && FrameWaitCounter == 10'h3FF )
-						begin
-							data_bus <= `BLOCK_TRAILER;
-							fsm_status <= 14;
-						end
+//						if( DISABLE_DEADLOCK == 1 && FrameWaitCounter == 10'h3FF )
+//						begin
+//							data_bus <= `BLOCK_TRAILER;
+//							fsm_status <= 14;
+//						end
 						data_bus <= `APV_CH_DATA;
 					end
-				20: begin	// additional state for revised version
-						data_bus <= `APV_CH_DATA;
-						ChannelWaitCounter <= ChannelWaitCounter + 1;
-						if( ChannelWaitCounter == 15 || ChannelHasEvent[ChCounterLsb] == 1 )
-							fsm_status <= 17;
-					end
+//				20: begin	// additional state for revised version
+//						data_bus <= `APV_CH_DATA;
+//						ChannelWaitCounter <= ChannelWaitCounter + 1;
+//						if( ChannelWaitCounter == 15 || ChannelHasEvent[ChCounterLsb] == 1 )
+//							fsm_status <= 17;
+//					end
 				17:	begin	// Additional state to get better timing
 						data_bus <= `APV_CH_DATA;
 						if( OutputFifoAlmostFull == 0 )	// proceed only if there is room to store at least one complete frame

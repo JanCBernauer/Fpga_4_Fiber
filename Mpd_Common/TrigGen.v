@@ -17,7 +17,7 @@ input [7:0] TRIGGER_DELAY;
 input [15:0] APV_WRITE_ON_FULL;
 
 reg APV_TRG_int, RESET101;
-reg [31:0] MISSING_TRIGGER_CNT, APV_TRIGGER_CNT, INCOMING_TRIGGER_CNT;
+reg [31:0] APV_TRIGGER_CNT, INCOMING_TRIGGER_CNT;
 reg TRIGGER_DISABLED;
 reg TRIG_PULSE;
 reg [3:0] trig_cnt;
@@ -199,22 +199,8 @@ begin
 	end
 end
 
-// MISSING_TRIGGER_CNT
-always @(posedge CLK or negedge RSTb)
-begin
-	if( RSTb == 0 )
-	begin
-		MISSING_TRIGGER_CNT <= 0;
-	end
-	else
-	begin
-		if( apv_write_on_full_or == 1 )
-			MISSING_TRIGGER_CNT <= MISSING_TRIGGER_CNT + 1;
-		else
-			if( reset101_cmd == 1 )
-				MISSING_TRIGGER_CNT <= 0;
-	end
-end
+// MISSING_TRIGGER_CNT - not used for now (individual counter per APV track this)
+assign MISSING_TRIGGER_CNT = 16'b0;
 
 // INCOMING_TRIGGER_CNT
 always @(posedge CLK or negedge RSTb)

@@ -16,7 +16,7 @@ module ChannelProcessor(RSTb, CLK, CLK_APV, CH_ENABLE, ENABLE_BASE_SUB,
 	SYNCED, ALL_CLEAR,
 	DAQ_MODE, ZERO_VAL, ONE_VAL, NO_MORE_SPACE, FIFO_EMPTY, FIFO_FULL, MODULE_ID, MARKER_CH, SAMPLE_PER_EVENT,
 	APV_FIFO_FULL_L, PROC_FIFO_FULL_L,
-	APV_WRITE_ON_FULL
+	missed_event_cnt, writefull_cnt
 );
 
 input RSTb, CLK, CLK_APV, CH_ENABLE, ENABLE_BASE_SUB;
@@ -41,7 +41,8 @@ input [4:0] MODULE_ID;
 input [7:0] MARKER_CH;
 input [4:0] SAMPLE_PER_EVENT;
 output  APV_FIFO_FULL_L, PROC_FIFO_FULL_L;
-output APV_WRITE_ON_FULL;
+output [7:0] missed_event_cnt;
+output [7:0] writefull_cnt;
 
 reg [11:0] FIFO_USED_WORDS;
 reg FIFO_EMPTY, FIFO_FULL;
@@ -91,7 +92,8 @@ ApvReadout ApvFrameDecoder(.RSTb(RSTb), .CLK(CLK_APV), .ENABLE(CH_ENABLE), .ADC_
 	.ONE_MORE_EVENT(decoded_event_present),
 	.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 	.END_FRAME(end_processing),
-	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL)
+	.missed_event_cnt(missed_event_cnt),
+	.writefull_cnt(writefull_cnt)
 	);
 
 // Note: end_process is form CLK_APV domain (longer period that CLK) -> resync inside
@@ -156,7 +158,10 @@ module EightChannels(RSTb, APV_CLK, PROCESS_CLK, ENABLE, EN_BASELINE_SUBTRACTION
 	RAM_ADDR, RAM_DIN, WE_PED_RAM, RE_PED_RAM, WE_THR_RAM,// RE_THR_RAM,
 	MODULE_ID, MARKER_CH, SAMPLE_PER_EVENT,
 	APV_FIFO_FULL_L, PROC_FIFO_FULL_L,
-	APV_WRITE_ON_FULL
+	missed_event_cnt0, missed_event_cnt1, missed_event_cnt2, missed_event_cnt3,
+	missed_event_cnt4, missed_event_cnt5, missed_event_cnt6, missed_event_cnt7,
+	writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3,
+	writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7
 	);
 
 input RSTb, APV_CLK, PROCESS_CLK;
@@ -189,7 +194,10 @@ input [4:0] MODULE_ID;
 input [7:0] MARKER_CH;
 input [4:0] SAMPLE_PER_EVENT;
 output [7:0] APV_FIFO_FULL_L, PROC_FIFO_FULL_L;
-output [7:0] APV_WRITE_ON_FULL;
+output [7:0] missed_event_cnt0, missed_event_cnt1, missed_event_cnt2, missed_event_cnt3;
+output [7:0] missed_event_cnt4, missed_event_cnt5, missed_event_cnt6, missed_event_cnt7;
+output [7:0] writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3;
+output [7:0] writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7;
 
 wire [7:0] no_space;
 
@@ -212,8 +220,9 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[0]), .FIFO_FULL(FIFO_FULL[0]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[0]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[0]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[0])
+		.missed_event_cnt(missed_event_cnt0), .writefull_cnt(writefull_cnt0)
 	);
+	
 	ChannelProcessor Ch1(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[1]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
 		.ADC_PDATA(ADC_PDATA1), .SYNC_PERIOD(SYNC_PERIOD), .COMMON_OFFSET(COMMON_OFFSET),
@@ -230,7 +239,7 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[1]), .FIFO_FULL(FIFO_FULL[1]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[1]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[1]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[1])
+		.missed_event_cnt(missed_event_cnt1), .writefull_cnt(writefull_cnt1)
 	);
 
 	ChannelProcessor Ch2(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
@@ -249,7 +258,7 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[2]), .FIFO_FULL(FIFO_FULL[2]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[2]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[2]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[2])
+		.missed_event_cnt(missed_event_cnt2), .writefull_cnt(writefull_cnt2)
 	);
 	ChannelProcessor Ch3(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[3]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
@@ -267,7 +276,7 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[3]), .FIFO_FULL(FIFO_FULL[3]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[3]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[3]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[3])
+		.missed_event_cnt(missed_event_cnt3), .writefull_cnt(writefull_cnt3)
 	);
 
 	ChannelProcessor Ch4(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
@@ -286,7 +295,7 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[4]), .FIFO_FULL(FIFO_FULL[4]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[4]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[4]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[4])
+		.missed_event_cnt(missed_event_cnt4), .writefull_cnt(writefull_cnt4)
 	);
 	ChannelProcessor Ch5(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[5]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
@@ -304,7 +313,7 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[5]), .FIFO_FULL(FIFO_FULL[5]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[5]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[5]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[5])
+		.missed_event_cnt(missed_event_cnt5), .writefull_cnt(writefull_cnt5)
 	);
 
 	ChannelProcessor Ch6(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
@@ -323,7 +332,7 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[6]), .FIFO_FULL(FIFO_FULL[6]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[6]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[6]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[6])
+		.missed_event_cnt(missed_event_cnt6), .writefull_cnt(writefull_cnt6)
 	);
 	ChannelProcessor Ch7(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[7]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
@@ -341,7 +350,7 @@ assign SPACE_AVAILABLE = &(~no_space);
 		.FIFO_EMPTY(FIFO_EMPTY[7]), .FIFO_FULL(FIFO_FULL[7]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[7]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[7]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[7])
+		.missed_event_cnt(missed_event_cnt7), .writefull_cnt(writefull_cnt7)
 	);
 
 endmodule
@@ -365,7 +374,10 @@ module SevenChannels(RSTb, APV_CLK, PROCESS_CLK, ENABLE, EN_BASELINE_SUBTRACTION
 	RAM_ADDR, RAM_DIN, WE_PED_RAM, RE_PED_RAM, WE_THR_RAM,// RE_THR_RAM,
 	MODULE_ID, MARKER_CH, SAMPLE_PER_EVENT,
 	APV_FIFO_FULL_L, PROC_FIFO_FULL_L,
-	APV_WRITE_ON_FULL
+	missed_event_cnt0, missed_event_cnt1, missed_event_cnt2, missed_event_cnt3,
+	missed_event_cnt4, missed_event_cnt5, missed_event_cnt6, missed_event_cnt7,
+	writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3,
+	writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7
 	);
 
 input RSTb, APV_CLK, PROCESS_CLK;
@@ -398,7 +410,10 @@ input [4:0] MODULE_ID;
 input [7:0] MARKER_CH;
 input [4:0] SAMPLE_PER_EVENT;
 output [7:0] APV_FIFO_FULL_L, PROC_FIFO_FULL_L;
-output [7:0] APV_WRITE_ON_FULL;
+output [7:0] missed_event_cnt0, missed_event_cnt1, missed_event_cnt2, missed_event_cnt3;
+output [7:0] missed_event_cnt4, missed_event_cnt5, missed_event_cnt6, missed_event_cnt7;
+output [7:0] writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3;
+output [7:0] writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7;
 
 wire [7:0] no_space;
 
@@ -415,7 +430,9 @@ assign ONE_MORE_EVENT[7] = 1'b0;
 assign APV_FIFO_FULL_L[7] = 1'b0;
 assign PROC_FIFO_FULL_L[7] = 1'b0;
 assign no_space[7] = 1'b0;
-assign APV_WRITE_ON_FULL[7] = 1'b0;
+assign missed_event_cnt7 = 8'b0;
+assign writefull_cnt7 = 8'b0;
+
 
 	ChannelProcessor Ch0(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[0]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
@@ -433,7 +450,7 @@ assign APV_WRITE_ON_FULL[7] = 1'b0;
 		.FIFO_EMPTY(FIFO_EMPTY[0]), .FIFO_FULL(FIFO_FULL[0]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[0]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[0]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[0])
+		.missed_event_cnt(missed_event_cnt0), .writefull_cnt(writefull_cnt0)
 	);
 	ChannelProcessor Ch1(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[1]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
@@ -451,7 +468,7 @@ assign APV_WRITE_ON_FULL[7] = 1'b0;
 		.FIFO_EMPTY(FIFO_EMPTY[1]), .FIFO_FULL(FIFO_FULL[1]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[1]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[1]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[1])
+		.missed_event_cnt(missed_event_cnt1), .writefull_cnt(writefull_cnt1)
 	);
 
 	ChannelProcessor Ch2(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
@@ -470,7 +487,7 @@ assign APV_WRITE_ON_FULL[7] = 1'b0;
 		.FIFO_EMPTY(FIFO_EMPTY[2]), .FIFO_FULL(FIFO_FULL[2]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[2]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[2]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[2])
+		.missed_event_cnt(missed_event_cnt2), .writefull_cnt(writefull_cnt2)
 	);
 	ChannelProcessor Ch3(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[3]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
@@ -488,7 +505,7 @@ assign APV_WRITE_ON_FULL[7] = 1'b0;
 		.FIFO_EMPTY(FIFO_EMPTY[3]), .FIFO_FULL(FIFO_FULL[3]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[3]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[3]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[3])
+		.missed_event_cnt(missed_event_cnt3), .writefull_cnt(writefull_cnt3)
 	);
 
 	ChannelProcessor Ch4(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
@@ -507,7 +524,7 @@ assign APV_WRITE_ON_FULL[7] = 1'b0;
 		.FIFO_EMPTY(FIFO_EMPTY[4]), .FIFO_FULL(FIFO_FULL[4]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[4]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[4]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[4])
+		.missed_event_cnt(missed_event_cnt4), .writefull_cnt(writefull_cnt4)
 	);
 	ChannelProcessor Ch5(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
 		.CH_ENABLE(ENABLE[5]), .ENABLE_BASE_SUB(EN_BASELINE_SUBTRACTION),
@@ -525,7 +542,7 @@ assign APV_WRITE_ON_FULL[7] = 1'b0;
 		.FIFO_EMPTY(FIFO_EMPTY[5]), .FIFO_FULL(FIFO_FULL[5]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[5]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[5]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[5])
+		.missed_event_cnt(missed_event_cnt5), .writefull_cnt(writefull_cnt5)
 	);
 
 	ChannelProcessor Ch6(.RSTb(RSTb), .CLK(PROCESS_CLK), .CLK_APV(APV_CLK),
@@ -544,7 +561,7 @@ assign APV_WRITE_ON_FULL[7] = 1'b0;
 		.FIFO_EMPTY(FIFO_EMPTY[6]), .FIFO_FULL(FIFO_FULL[6]), .MODULE_ID(MODULE_ID),
 		.MARKER_CH(MARKER_CH), .SAMPLE_PER_EVENT(SAMPLE_PER_EVENT),
 		.APV_FIFO_FULL_L(APV_FIFO_FULL_L[6]), .PROC_FIFO_FULL_L(PROC_FIFO_FULL_L[6]),
-		.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[6])
+		.missed_event_cnt(missed_event_cnt6), .writefull_cnt(writefull_cnt6)
 	);
 
 endmodule
@@ -564,6 +581,7 @@ module FifoIf(FIFO_RD,
 	FIFO_CEb, THR_CEb, PED_CEb, OBUF_STATUS_CEb,
 	USER_ADDR, DATA_OUT,
 	MISSED_TRIGGER, INCOMING_TRIGGER_CNT,
+	WAITING_ON_APV_MASK,
 	WE_PED_RAM, RE_PED_RAM, WE_THR_RAM, //RE_THR_RAM,
 	EV_BUILDER_DATA_OUT, EV_BUILDER_ENABLE,
 	EV_BUILDER_FIFO_EMPTY, EV_BUILDER_FIFO_FULL,
@@ -576,7 +594,15 @@ module FifoIf(FIFO_RD,
 	APV_FIFO_FULL_L, PROC_FIFO_FULL_L,
 	OUTPUT_FIFO_FULL_L, EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L,
 	OFIFO_BLOCKWORDCOUNT_RD, OFIFO_BLOCKWORDCOUNT_EMPTY,
-	OFIFO_BLOCKWORDCOUNT_FULL, OFIFO_BLOCKWORDCOUNT_Q
+	OFIFO_BLOCKWORDCOUNT_FULL, OFIFO_BLOCKWORDCOUNT_Q,
+	missed_event_cnt0, missed_event_cnt1, missed_event_cnt2, missed_event_cnt3,
+	missed_event_cnt4, missed_event_cnt5, missed_event_cnt6, missed_event_cnt7,
+	missed_event_cnt8, missed_event_cnt9, missed_event_cnt10, missed_event_cnt11,
+	missed_event_cnt12, missed_event_cnt13, missed_event_cnt14, missed_event_cnt15,
+	writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3,
+	writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7,
+	writefull_cnt8, writefull_cnt9, writefull_cnt10, writefull_cnt11,
+	writefull_cnt12, writefull_cnt13, writefull_cnt14, writefull_cnt15
 );
 
 output [15:0] FIFO_RD;
@@ -592,7 +618,9 @@ input [15:0] FIFO_EMPTY, FIFO_FULL, SYNCED, ERROR;
 input RSTb, CLK, WEb, REb, OEb, FIFO_CEb, THR_CEb, PED_CEb, OBUF_STATUS_CEb;
 input [15:0] USER_ADDR;
 output [31:0] DATA_OUT;
-input [31:0] MISSED_TRIGGER, INCOMING_TRIGGER_CNT;
+input [31:0] INCOMING_TRIGGER_CNT;
+input [15:0] MISSED_TRIGGER;
+input [15:0] WAITING_ON_APV_MASK;
 output [15:0] WE_PED_RAM, RE_PED_RAM, WE_THR_RAM;//, RE_THR_RAM;
 input [23:0] EV_BUILDER_DATA_OUT;
 input EV_BUILDER_ENABLE;
@@ -616,6 +644,14 @@ output OFIFO_BLOCKWORDCOUNT_RD;
 input OFIFO_BLOCKWORDCOUNT_EMPTY, OFIFO_BLOCKWORDCOUNT_FULL;
 input [19:0] OFIFO_BLOCKWORDCOUNT_Q;
 
+input [7:0] missed_event_cnt0, missed_event_cnt1, missed_event_cnt2, missed_event_cnt3;
+input [7:0] missed_event_cnt4, missed_event_cnt5, missed_event_cnt6, missed_event_cnt7;
+input [7:0] missed_event_cnt8, missed_event_cnt9, missed_event_cnt10, missed_event_cnt11;
+input [7:0] missed_event_cnt12, missed_event_cnt13, missed_event_cnt14, missed_event_cnt15;
+input [7:0] writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3;
+input [7:0] writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7;
+input [7:0] writefull_cnt8, writefull_cnt9, writefull_cnt10, writefull_cnt11;
+input [7:0] writefull_cnt12, writefull_cnt13, writefull_cnt14, writefull_cnt15;
 
 reg [15:0] FIFO_RD;
 reg [31:0] int_data, int_data_Latched;
@@ -876,14 +912,33 @@ begin
 		16'b0000_0000_1000_0001: int_data <= {8'h0, EV_BUILDER_EV_CNT};	// 0x204
 		16'b0000_0000_1000_0010: int_data <= {8'h0, OBUF_BLOCK_CNT, 8'h0, EV_BUILDER_BLOCK_CNT};	// 0x208
 		16'b0000_0000_1000_0011: int_data <= TRIGGER_COUNTER;	// 0x20C
-		16'b0000_0000_1000_0100: int_data <= MISSED_TRIGGER;	// 0x210
+//		16'b0000_0000_1000_0100: int_data <= MISSED_TRIGGER;	// 0x210
+		16'b0000_0000_1000_0100: int_data <= {WAITING_ON_APV_MASK, MISSED_TRIGGER};	// 0x210
 		16'b0000_0000_1000_0101: int_data <= INCOMING_TRIGGER_CNT;	// 0x214
+		
 		16'b0000_0000_1000_0110: int_data <= {SDRAM_INITIALIZED, 6'h0, SDRAM_FIFO_WRITE_ADDRESS};	// 0x218
 		16'b0000_0000_1000_0111: int_data <= {SDRAM_INITIALIZED, 6'h0, SDRAM_FIFO_READ_ADDRESS};	// 0x21C
 		16'b0000_0000_1000_1000: int_data <= {SDRAM_FIFO_OVERRUN, 6'h0, SDRAM_FIFO_WORDCOUNT};	// 0x220
 		16'b0000_0000_1000_1001: int_data <= {OUTPUT_FIFO_FULL, OUTPUT_FIFO_EMPTY, 17'h0, OUTPUT_FIFO_WC};	// 0x224
 		16'b0000_0000_1000_1010: int_data <= {APV_FIFO_FULL_L, PROC_FIFO_FULL_L};	// 0x228
 		16'b0000_0000_1000_1011: int_data <= {OFIFO_BLOCKWORDCOUNT_FULL, OFIFO_BLOCKWORDCOUNT_EMPTY, 10'h0, OFIFO_BLOCKWORDCOUNT_Q};	// 0x22C
+		
+		16'b0000_0000_1000_1100: int_data <= {16'h0, writefull_cnt0, missed_event_cnt0};	// 0x230
+		16'b0000_0000_1000_1101: int_data <= {16'h0, writefull_cnt1, missed_event_cnt1};	// 0x234
+		16'b0000_0000_1000_1110: int_data <= {16'h0, writefull_cnt2, missed_event_cnt2};	// 0x238
+		16'b0000_0000_1000_1111: int_data <= {16'h0, writefull_cnt3, missed_event_cnt3};	// 0x23C
+		16'b0000_0000_1001_0000: int_data <= {16'h0, writefull_cnt4, missed_event_cnt4};	// 0x240
+		16'b0000_0000_1001_0001: int_data <= {16'h0, writefull_cnt5, missed_event_cnt5};	// 0x244
+		16'b0000_0000_1001_0010: int_data <= {16'h0, writefull_cnt6, missed_event_cnt6};	// 0x248
+		16'b0000_0000_1001_0011: int_data <= {16'h0, writefull_cnt7, missed_event_cnt7};	// 0x24C
+		16'b0000_0000_1001_0100: int_data <= {16'h0, writefull_cnt8, missed_event_cnt8};	// 0x250
+		16'b0000_0000_1001_0101: int_data <= {16'h0, writefull_cnt9, missed_event_cnt9};	// 0x254
+		16'b0000_0000_1001_0110: int_data <= {16'h0, writefull_cnt10, missed_event_cnt10};	// 0x258
+		16'b0000_0000_1001_0111: int_data <= {16'h0, writefull_cnt11, missed_event_cnt11};	// 0x25C
+		16'b0000_0000_1001_1000: int_data <= {16'h0, writefull_cnt12, missed_event_cnt12};	// 0x260
+		16'b0000_0000_1001_1001: int_data <= {16'h0, writefull_cnt13, missed_event_cnt13};	// 0x264
+		16'b0000_0000_1001_1010: int_data <= {16'h0, writefull_cnt14, missed_event_cnt14};	// 0x268
+		16'b0000_0000_1001_1100: int_data <= {16'h0, writefull_cnt15, missed_event_cnt15};	// 0x26C
 			
 		default: int_data <= 0;
 	endcase

@@ -146,7 +146,8 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire Vme_DataReadout_ceB;
 	wire ObufStatus_ceB, AdcConfig_ceB, I2C_Controller_ceB, Vme_Sdram_ceB, Vme_ConfigReg_ceB;
 	wire Histogrammer0_ceB, Histogrammer1_ceB, ApvFifo_ceB, ThrRam_ceB, PedRam_ceB;
-	wire [31:0] missing_trigger_count, apv_trigger_count, incoming_trigger_count;
+	wire [31:0] apv_trigger_count, incoming_trigger_count;
+	wire [15:0] missing_trigger_count;
 	wire [15:0] ApvSynced, ApvFifoEmpty, ApvFifoFull, ApvError, ApvEnable, ApvFifo_read, ApvFifoRd_EVB,
 		OneMoreEvent, ApvEndFrame, ApvFrameGate, ApvFifoFullLatched, ProcFifoFullLatched;
 	wire [31:0] IoConfig, TrigGenConfig, ReadoutConfig;
@@ -225,7 +226,8 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire [12:0] Output_Fifo_Wc;
 
 	wire trigger_time_fifo_rd, trigger_time_fifo_rd_evb, trigger_time_fifo_full, trigger_time_fifo_empty, tdc_select;
-	wire [47:0] trigger_time_fifo_data, EventBuilder_BlockCnt, Obuf_BlockCnt;
+	wire [47:0] trigger_time_fifo_data;
+	wire [7:0] EventBuilder_BlockCnt, Obuf_BlockCnt;
 
 	wire ck_40MHz_from_Bkplane, P0CkPll_Locked, ck_40MHz_Main;
 	wire pll_clock_switch0, pll_clock_switch1;
@@ -251,7 +253,14 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire EvbFifoFullLatched, EventFifoFullLatched, TimeFifoFullLatched,OutputFifoFullLatched;
 	wire Enable_Slave_Terminate;
 	wire User_Reset;
-	wire [15:0] APV_WRITE_ON_FULL;
+	wire [7:0] missed_event_cnt0, missed_event_cnt1, missed_event_cnt2, missed_event_cnt3;
+	wire [7:0] missed_event_cnt4, missed_event_cnt5, missed_event_cnt6, missed_event_cnt7;
+	wire [7:0] missed_event_cnt8, missed_event_cnt9, missed_event_cnt10, missed_event_cnt11;
+	wire [7:0] missed_event_cnt12, missed_event_cnt13, missed_event_cnt14, missed_event_cnt15;
+	wire [7:0] writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3;
+	wire [7:0] writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7;
+	wire [7:0] writefull_cnt8, writefull_cnt9, writefull_cnt10, writefull_cnt11;
+	wire [7:0] writefull_cnt12, writefull_cnt13, writefull_cnt14, writefull_cnt15;
 
 wire [31:0] data_from_vme, data_from_fiber, data_from_master, data_to_fiber;
 reg [63:0] data_to_master;
@@ -261,6 +270,7 @@ wire Dtack_Rd, Berr_Rd, Retry_Rd;
 wire asmi_ceB, rupd_ceB;
 wire disable_evb_deadlock;
 wire Enable_I2C_Hdmi0, Enable_I2C_Hdmi1;
+wire [15:0] WAITING_ON_APV_MASK;
 
 wire OutputFifoBlockWordCount_Rd, OutputFifoBlockWordCount_Empty, OutputFifoBlockWordCount_Full;
 wire [19:0] OutputFifoBlockWordCount_Q;
@@ -294,10 +304,10 @@ assign I2C_SDA_OUT = (sda_oeB == 0) ? 0 : 1'bz;
 assign I2C_SCL = (scl_oeB == 0) ? 0 : 1'bz;
 //assign I2C_SCL = scl_oeB;
 
-reg USER_IN_NIM_reg0;
-reg [1:0] USER_IN_TTL_reg;
-assign internal_user_in[0] = ~IoConfig[0] ? USER_IN_TTL_reg[0] : ~USER_IN_NIM_reg0;	// LVTTL default
-assign internal_user_in[1] = ~IoConfig[1] ? USER_IN_TTL_reg[1] : 1'b0;	//~USER_IN_NIM[1];	// LVTTL default (NIM disabled for user_in since it has switched to clock)
+reg USER_IN_NIM_reg0_0,USER_IN_NIM_reg0_1;
+reg [1:0] USER_IN_TTL_reg_0, USER_IN_TTL_reg_1;
+assign internal_user_in[0] = ~IoConfig[0] ? USER_IN_TTL_reg_1[0] : ~USER_IN_NIM_reg0_1;	// LVTTL default
+assign internal_user_in[1] = ~IoConfig[1] ? USER_IN_TTL_reg_1[1] : 1'b0;	//~USER_IN_NIM[1];	// LVTTL default (NIM disabled for user_in since it has switched to clock)
 
 assign SEL_OUT[0] = IoConfig[2];	// LVTTL default
 assign SEL_OUT[1] = IoConfig[3];	// LVTTL default
@@ -403,8 +413,10 @@ assign APV_CLOCK = ck_40MHz;
 	begin
 		APV_RESET <= RSTb_sync & ~i2c_ApvReset;
 		BUSY_OUT <= internal_trigger_disabled | (FifoLevel1&UseSdramFifo) | (EvbFifoAlmostFull&~UseSdramFifo);
-		USER_IN_NIM_reg0 <= USER_IN_NIM[0];
-		USER_IN_TTL_reg <= USER_IN_TTL;
+		USER_IN_NIM_reg0_0 <= USER_IN_NIM[0];
+		USER_IN_NIM_reg0_1 <= USER_IN_NIM_reg0_0;
+		USER_IN_TTL_reg_0 <= USER_IN_TTL;
+		USER_IN_TTL_reg_1 <= USER_IN_TTL_reg_0;
 	end
 
 	OneShot TurnOnLed0(.OUT(LED[0]), .START(VME_DTACK_EN | Fiber_activity), .CK(ck_1MHz), .RSTb(RSTb_sync));
@@ -881,8 +893,7 @@ TrigGen ApvTriggerHandler(.APV_TRG(APV_TRIGGER), .RESET101(apv_reset101), .RSTb(
 	.NO_MORE_SPACE(no_more_space07 | no_more_space815),
 //	.SPACE_AVAILABLE(space_available07 & space_available815),
 	.SPACE_AVAILABLE( &ApvFifoEmpty ), .OUTPUT_FIFO_ALMOST_FULL(FifoLevel2&UseSdramFifo),
-	.TRIGGER_DISABLED(internal_trigger_disabled), .TRIGGER_DELAY(TriggerDelay),
-	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL));	// BUSY signal
+	.TRIGGER_DISABLED(internal_trigger_disabled), .TRIGGER_DELAY(TriggerDelay));	// BUSY signal
 
 EightChannels ApvProcessor_0_7(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK1), .PROCESS_CLK(Vme_clock),
 	.ENABLE(ApvEnable[7:0]),
@@ -914,7 +925,14 @@ EightChannels ApvProcessor_0_7(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK1), .PROCE
 	.WE_THR_RAM(we_thr_ram[7:0]), //.RE_THR_RAM(re_thr_ram[7:0]),
 	.MODULE_ID(~VME_GA[4:0]), .MARKER_CH(MarkerCh), .SAMPLE_PER_EVENT(SamplePerEvent),
 	.APV_FIFO_FULL_L(ApvFifoFullLatched[7:0]), .PROC_FIFO_FULL_L(ProcFifoFullLatched[7:0]),
-	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[7:0])
+	.missed_event_cnt0(missed_event_cnt0), .missed_event_cnt1(missed_event_cnt1),
+	.missed_event_cnt2(missed_event_cnt2), .missed_event_cnt3(missed_event_cnt3),
+	.missed_event_cnt4(missed_event_cnt4), .missed_event_cnt5(missed_event_cnt5),
+	.missed_event_cnt6(missed_event_cnt6), .missed_event_cnt7(missed_event_cnt7),
+	.writefull_cnt0(writefull_cnt0), .writefull_cnt1(writefull_cnt1),
+	.writefull_cnt2(writefull_cnt2), .writefull_cnt3(writefull_cnt3),
+	.writefull_cnt4(writefull_cnt4), .writefull_cnt5(writefull_cnt5),
+	.writefull_cnt6(writefull_cnt6), .writefull_cnt7(writefull_cnt7)
 	);
 
 SevenChannels ApvProcessor_8_14(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK2), .PROCESS_CLK(Vme_clock),
@@ -947,7 +965,14 @@ SevenChannels ApvProcessor_8_14(.RSTb(RSTb_sync), .APV_CLK(ADC_FRAME_CK2), .PROC
 	.WE_THR_RAM(we_thr_ram[15:8]), //.RE_THR_RAM(re_thr_ram[15:8]),
 	.MODULE_ID(~VME_GA[4:0]), .MARKER_CH(MarkerCh), .SAMPLE_PER_EVENT(SamplePerEvent),
 	.APV_FIFO_FULL_L(ApvFifoFullLatched[15:8]), .PROC_FIFO_FULL_L(ProcFifoFullLatched[15:8]),
-	.APV_WRITE_ON_FULL(APV_WRITE_ON_FULL[15:8])
+	.missed_event_cnt0(missed_event_cnt8), .missed_event_cnt1(missed_event_cnt9),
+	.missed_event_cnt2(missed_event_cnt10), .missed_event_cnt3(missed_event_cnt11),
+	.missed_event_cnt4(missed_event_cnt12), .missed_event_cnt5(missed_event_cnt13),
+	.missed_event_cnt6(missed_event_cnt14), .missed_event_cnt7(missed_event_cnt15),
+	.writefull_cnt0(writefull_cnt8), .writefull_cnt1(writefull_cnt9),
+	.writefull_cnt2(writefull_cnt10), .writefull_cnt3(writefull_cnt11),
+	.writefull_cnt4(writefull_cnt12), .writefull_cnt5(writefull_cnt13),
+	.writefull_cnt6(writefull_cnt14), .writefull_cnt7(writefull_cnt15)
 	);
 
 FifoIf DebugFifoIf(.FIFO_RD(ApvFifo_read),
@@ -975,6 +1000,7 @@ FifoIf DebugFifoIf(.FIFO_RD(ApvFifo_read),
 	.USER_ADDR(user_addr[15:0]),
 	.DATA_OUT(Channel_Direct_Data),
 	.MISSED_TRIGGER(missing_trigger_count), .INCOMING_TRIGGER_CNT(incoming_trigger_count),
+	.WAITING_ON_APV_MASK(WAITING_ON_APV_MASK),
 	.WE_PED_RAM(we_ped_ram), .RE_PED_RAM(re_ped_ram),
 	.WE_THR_RAM(we_thr_ram), //.RE_THR_RAM(re_thr_ram),
 	.EV_BUILDER_DATA_OUT(EvBuilderDataOut[23:0]), .EV_BUILDER_ENABLE(Enable_EventBuilder),
@@ -990,7 +1016,23 @@ FifoIf DebugFifoIf(.FIFO_RD(ApvFifo_read),
 	.APV_FIFO_FULL_L(ApvFifoFullLatched), .PROC_FIFO_FULL_L(ProcFifoFullLatched), .OUTPUT_FIFO_FULL_L(OutputFifoFullLatched),
 	.EVB_FIFO_FULL_L(EvbFifoFullLatched), .EVENT_FIFO_FULL_L(EventFifoFullLatched), .TIME_FIFO_FULL_L(TimeFifoFullLatched),
 	.OFIFO_BLOCKWORDCOUNT_RD(OutputFifoBlockWordCount_Rd), .OFIFO_BLOCKWORDCOUNT_EMPTY(OutputFifoBlockWordCount_Empty),
-	.OFIFO_BLOCKWORDCOUNT_FULL(OutputFifoBlockWordCount_Full), .OFIFO_BLOCKWORDCOUNT_Q(OutputFifoBlockWordCount_Q)
+	.OFIFO_BLOCKWORDCOUNT_FULL(OutputFifoBlockWordCount_Full), .OFIFO_BLOCKWORDCOUNT_Q(OutputFifoBlockWordCount_Q),
+	.missed_event_cnt0(missed_event_cnt0), .missed_event_cnt1(missed_event_cnt1),
+	.missed_event_cnt2(missed_event_cnt2), .missed_event_cnt3(missed_event_cnt3),
+	.missed_event_cnt4(missed_event_cnt4), .missed_event_cnt5(missed_event_cnt5),
+	.missed_event_cnt6(missed_event_cnt6), .missed_event_cnt7(missed_event_cnt7),
+	.missed_event_cnt8(missed_event_cnt8), .missed_event_cnt9(missed_event_cnt9),
+	.missed_event_cnt10(missed_event_cnt10), .missed_event_cnt11(missed_event_cnt11),
+	.missed_event_cnt12(missed_event_cnt12), .missed_event_cnt13(missed_event_cnt13),
+	.missed_event_cnt14(missed_event_cnt14), .missed_event_cnt15(missed_event_cnt15),
+	.writefull_cnt0(writefull_cnt0), .writefull_cnt1(writefull_cnt1),
+	.writefull_cnt2(writefull_cnt2), .writefull_cnt3(writefull_cnt3),
+	.writefull_cnt4(writefull_cnt4), .writefull_cnt5(writefull_cnt5),
+	.writefull_cnt6(writefull_cnt6), .writefull_cnt7(writefull_cnt7),
+	.writefull_cnt8(writefull_cnt8), .writefull_cnt9(writefull_cnt9),
+	.writefull_cnt10(writefull_cnt10), .writefull_cnt11(writefull_cnt11),
+	.writefull_cnt12(writefull_cnt12), .writefull_cnt13(writefull_cnt13),
+	.writefull_cnt14(writefull_cnt14), .writefull_cnt15(writefull_cnt15)
 	);
 
 	
@@ -1015,7 +1057,8 @@ EventBuilder TheBuilder(.RSTb(RSTb_sync), .APV_CLOCK(APV_CLOCK), .CLK(Vme_clock)
 	.ALMOST_FULL(EvbFifoAlmostFull),
 	.DATA_OUT_CNT(EventBuilder_Wc), .DATA_OUT_RD(EventBuilder_Read),
 	.EV_CNT(EventBuilder_EvCnt), .BLOCK_CNT(EventBuilder_BlockCnt),
-	.EVB_FIFO_FULL_L(EvbFifoFullLatched), .EVENT_FIFO_FULL_L(EventFifoFullLatched), .TIME_FIFO_FULL_L(TimeFifoFullLatched)
+	.EVB_FIFO_FULL_L(EvbFifoFullLatched), .EVENT_FIFO_FULL_L(EventFifoFullLatched), .TIME_FIFO_FULL_L(TimeFifoFullLatched),
+	.WAITING_ON_APV_MASK(WAITING_ON_APV_MASK)
 	);
 
 

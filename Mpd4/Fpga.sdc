@@ -16,7 +16,7 @@ set tCO_vme 8.5
 set tSU_DDR_adc 0.67
 set tH_DDR_adc 0.85
 set bit_period_DDR_adc 4.1
-set frame_period_DDR_adc 25.0
+set frame_period_DDR_adc 24.0
 
 # Virtual clocks
 create_clock -name {Ck_110MHz_virt} -period 9.09
@@ -25,8 +25,9 @@ create_clock -name {ADC_LCLK1_virt} -period $bit_period_DDR_adc
 create_clock -name {ADC_LCLK2_virt} -period $bit_period_DDR_adc
 create_clock -name {ADC_FRAME_CK1_virt} -period $frame_period_DDR_adc
 create_clock -name {ADC_FRAME_CK2_virt} -period $frame_period_DDR_adc
-create_clock -name {Ck_40MHz_virt} -period 25.0
+create_clock -name {Ck_40MHz_virt} -period 24.0
 create_clock -name {Ck_10MHz_virt} -period 100.0
+create_clock -name {ExtClk} -period 24 [get_ports {USER_IN_NIM[1]}]
 #create_clock -name {MASTER_CLOCK_virt} -period $master_ck_period
 #create_clock -name {MASTER_CLOCK2_virt} -period $master_ck_period
 #create_clock -name {GXB_CK_virt} -period 16.0
@@ -178,16 +179,16 @@ set_input_delay -clock $Vme_Ref_Ck -min 1.0 [get_ports {VME_IACKb}]
 set_input_delay -clock $Vme_Ref_Ck -max 9.0 [get_ports {I2C_SDA_IN}]
 set_input_delay -clock $Vme_Ref_Ck -min 1.0 [get_ports {I2C_SDA_IN}]
 
-set_input_delay -clock $Apv_Ref_Ck -max 20.0 [get_ports {USER_IN_TTL[*]}]
-set_input_delay -clock $Apv_Ref_Ck -min 1.0 [get_ports {USER_IN_TTL[*]}]
-set_input_delay -clock $Apv_Ref_Ck -max 20.0 [get_ports {USER_IN_NIM[*]}]
-set_input_delay -clock $Apv_Ref_Ck -min 1.0 [get_ports {USER_IN_NIM[*]}]
-set_input_delay -clock $Apv_Ref_Ck -max 20.0 [get_ports {SYNC_IN}]
-set_input_delay -clock $Apv_Ref_Ck -min 1.0 [get_ports {SYNC_IN}]
-set_input_delay -clock $Apv_Ref_Ck -max 20.0 [get_ports {TRIG1_IN}]
-set_input_delay -clock $Apv_Ref_Ck -min 1.0 [get_ports {TRIG1_IN}]
-set_input_delay -clock $Apv_Ref_Ck -max 20.0 [get_ports {TRIG2_IN}]
-set_input_delay -clock $Apv_Ref_Ck -min 1.0 [get_ports {TRIG2_IN}]
+set_input_delay -clock "ExtClk" -max 6.0 [get_ports {USER_IN_TTL[*]}]
+set_input_delay -clock "ExtClk" -min 6.0 [get_ports {USER_IN_TTL[*]}]
+set_input_delay -clock "ExtClk" -max 6.0 [get_ports {USER_IN_NIM[0]}]
+set_input_delay -clock "ExtClk" -min 6.0 [get_ports {USER_IN_NIM[0]}]
+#set_input_delay -clock $Apv_Ref_Ck -max 12.0 [get_ports {SYNC_IN}]
+#set_input_delay -clock $Apv_Ref_Ck -min 12.0 [get_ports {SYNC_IN}]
+#set_input_delay -clock $Apv_Ref_Ck -max 12.0 [get_ports {TRIG1_IN}]
+#set_input_delay -clock $Apv_Ref_Ck -min 12.0 [get_ports {TRIG1_IN}]
+#set_input_delay -clock $Apv_Ref_Ck -max 12.0 [get_ports {TRIG2_IN}]
+#set_input_delay -clock $Apv_Ref_Ck -min 12.0 [get_ports {TRIG2_IN}]
 
 # Output delays
 set_output_delay -clock $Vme_Ref_Ck -max 3.0 [get_ports {VME_A[*]}]
