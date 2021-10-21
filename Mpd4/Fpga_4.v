@@ -147,7 +147,7 @@ output SPARE_CLK_TTL;	// 2.5 V clock
 	wire ObufStatus_ceB, AdcConfig_ceB, I2C_Controller_ceB, Vme_Sdram_ceB, Vme_ConfigReg_ceB;
 	wire Histogrammer0_ceB, Histogrammer1_ceB, ApvFifo_ceB, ThrRam_ceB, PedRam_ceB;
 	wire [31:0] apv_trigger_count, incoming_trigger_count;
-	wire [15:0] missing_trigger_count;
+	wire [7:0] missing_trigger_count;
 	wire [15:0] ApvSynced, ApvFifoEmpty, ApvFifoFull, ApvError, ApvEnable, ApvFifo_read, ApvFifoRd_EVB,
 		OneMoreEvent, ApvEndFrame, ApvFrameGate, ApvFifoFullLatched, ProcFifoFullLatched;
 	wire [31:0] IoConfig, TrigGenConfig, ReadoutConfig;
@@ -271,6 +271,7 @@ wire asmi_ceB, rupd_ceB;
 wire disable_evb_deadlock;
 wire Enable_I2C_Hdmi0, Enable_I2C_Hdmi1;
 wire [15:0] WAITING_ON_APV_MASK;
+wire [7:0] SyncCounter;
 
 wire OutputFifoBlockWordCount_Rd, OutputFifoBlockWordCount_Empty, OutputFifoBlockWordCount_Full;
 wire [19:0] OutputFifoBlockWordCount_Q;
@@ -884,7 +885,8 @@ Histogrammer AdcHisto1(.LCLK(ADC_LCLK2), .ADCLK(ADC_FRAME_CK2),
 
 
 TrigGen ApvTriggerHandler(.APV_TRG(APV_TRIGGER), .RESET101(apv_reset101), .RSTb(RSTb_sync),
-	.CLK(APV_CLOCK), .MAX_TRIG_OUT(MaxTrigOut), .TRIG_PULSE(apv_trigger_pulse),
+	.CLK(APV_CLOCK), .MAX_TRIG_OUT(MaxTrigOut),
+	.TRIG_PULSE(apv_trigger_pulse),
 	.TRIG_MODE(TrigMode),
 	.TRIG_CMD(incoming_trigger), .RESET_CMD(sync),
 	.MISSING_TRIGGER_CNT(missing_trigger_count), .APV_TRIGGER_CNT(apv_trigger_count),
@@ -1032,13 +1034,15 @@ FifoIf DebugFifoIf(.FIFO_RD(ApvFifo_read),
 	.writefull_cnt8(writefull_cnt8), .writefull_cnt9(writefull_cnt9),
 	.writefull_cnt10(writefull_cnt10), .writefull_cnt11(writefull_cnt11),
 	.writefull_cnt12(writefull_cnt12), .writefull_cnt13(writefull_cnt13),
-	.writefull_cnt14(writefull_cnt14), .writefull_cnt15(writefull_cnt15)
+	.writefull_cnt14(writefull_cnt14), .writefull_cnt15(writefull_cnt15),
+	.SyncCounter(SyncCounter)
 	);
 
 	
 EventBuilder TheBuilder(.RSTb(RSTb_sync), .APV_CLOCK(APV_CLOCK), .CLK(Vme_clock),
 //	.TRIGGER(incoming_trigger),	// Incoming trigger pulse
 	.TRIGGER(apv_trigger_pulse),	// Pulse sent to APVs
+	.SYNC(apv_reset101),
 	.ALL_CLEAR(AllClear),
 	.SAMPLE_PER_EVENT(SamplePerEvent), .EVENT_PER_BLOCK(EventPerBlock),
 	.ENABLE_MASK(ApvEnable), .ENABLE_EVBUILD(Enable_EventBuilder),
@@ -1058,7 +1062,7 @@ EventBuilder TheBuilder(.RSTb(RSTb_sync), .APV_CLOCK(APV_CLOCK), .CLK(Vme_clock)
 	.DATA_OUT_CNT(EventBuilder_Wc), .DATA_OUT_RD(EventBuilder_Read),
 	.EV_CNT(EventBuilder_EvCnt), .BLOCK_CNT(EventBuilder_BlockCnt),
 	.EVB_FIFO_FULL_L(EvbFifoFullLatched), .EVENT_FIFO_FULL_L(EventFifoFullLatched), .TIME_FIFO_FULL_L(TimeFifoFullLatched),
-	.WAITING_ON_APV_MASK(WAITING_ON_APV_MASK)
+	.WAITING_ON_APV_MASK(WAITING_ON_APV_MASK), .SyncCounter(SyncCounter)
 	);
 
 

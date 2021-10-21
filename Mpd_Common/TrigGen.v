@@ -8,7 +8,8 @@ input [3:0] MAX_TRIG_OUT;
 input [2:0] TRIG_MODE;
 output TRIG_PULSE;
 input TRIG_CMD, RESET_CMD;
-output [31:0] MISSING_TRIGGER_CNT, APV_TRIGGER_CNT, INCOMING_TRIGGER_CNT;
+output [31:0] APV_TRIGGER_CNT, INCOMING_TRIGGER_CNT;
+output [7:0] MISSING_TRIGGER_CNT;
 input [7:0] MAX_RESET_LATENCY;
 input [7:0] CALIB_LATENCY;
 input NO_MORE_SPACE, SPACE_AVAILABLE, OUTPUT_FIFO_ALMOST_FULL;
@@ -200,7 +201,7 @@ begin
 end
 
 // MISSING_TRIGGER_CNT - not used for now (individual counter per APV track this)
-assign MISSING_TRIGGER_CNT = 16'b0;
+assign MISSING_TRIGGER_CNT = 8'b0;
 
 // INCOMING_TRIGGER_CNT
 always @(posedge CLK or negedge RSTb)

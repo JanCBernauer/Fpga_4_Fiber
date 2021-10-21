@@ -3,76 +3,76 @@ TimeQuest Timing Analyzer Summary
 ------------------------------------------------------------
 
 Type  : Slow Model Setup 'Ck_40MHz_virt'
-Slack : -18.782
-TNS   : -46.344
+Slack : -18.783
+TNS   : -46.339
 
 Type  : Slow Model Setup 'Ck_100MHz_virt'
-Slack : -9.085
-TNS   : -286.835
-
-Type  : Slow Model Setup 'ADC_LCLK2'
-Slack : -3.606
-TNS   : -134.061
-
-Type  : Slow Model Setup 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
-Slack : -3.393
-TNS   : -409.058
+Slack : -8.380
+TNS   : -271.827
 
 Type  : Slow Model Setup 'ADC_LCLK1'
-Slack : -3.203
-TNS   : -116.247
+Slack : -4.251
+TNS   : -130.221
+
+Type  : Slow Model Setup 'ADC_LCLK2'
+Slack : -3.820
+TNS   : -130.624
+
+Type  : Slow Model Setup 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
+Slack : -3.521
+TNS   : -416.690
+
+Type  : Slow Model Setup 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
+Slack : -3.081
+TNS   : -66.182
 
 Type  : Slow Model Setup 'n/a'
-Slack : -2.779
-TNS   : -4.975
+Slack : -2.776
+TNS   : -4.972
 
 Type  : Slow Model Setup 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1'
 Slack : -2.625
 TNS   : -5.194
 
-Type  : Slow Model Setup 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
-Slack : -1.693
-TNS   : -38.369
+Type  : Slow Model Setup 'ADC_FRAME_CK2'
+Slack : -2.483
+TNS   : -3.571
 
 Type  : Slow Model Setup 'ADC_FRAME_CK1'
-Slack : -1.192
-TNS   : -2.524
-
-Type  : Slow Model Setup 'ADC_FRAME_CK2'
-Slack : -1.141
-TNS   : -2.062
+Slack : -2.148
+TNS   : -6.928
 
 Type  : Slow Model Setup 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]'
-Slack : -0.665
-TNS   : -1.233
+Slack : -1.629
+TNS   : -13.912
 
 Type  : Slow Model Setup 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
-Slack : 4.397
+Slack : 4.633
 TNS   : 0.000
 
 Type  : Slow Model Setup 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_rec[0].receive|clkout'
-Slack : 10.477
+Slack : 11.457
 TNS   : 0.000
 
 Type  : Slow Model Setup 'Ck_10MHz_virt'
-Slack : 16.163
+Slack : 16.086
 TNS   : 0.000
 
 Type  : Slow Model Setup 'MASTER_CLOCK'
-Slack : 17.967
+Slack : 20.013
 TNS   : 0.000
 
 Type  : Slow Model Setup 'PLL_Local_Clk_inst|altpll_component|pll|clk[2]'
-Slack : 830.048
+Slack : 827.725
 TNS   : 0.000
 
 Type  : Slow Model Hold 'ADC_LCLK1'
 Slack : -0.792
-TNS   : -13.687
+TNS   : -13.717
 
 Type  : Slow Model Hold 'ADC_LCLK2'
 Slack : -0.761
-TNS   : -12.490
+TNS   : -12.616
 
 Type  : Slow Model Hold 'ADC_FRAME_CK1'
 Slack : 0.490
@@ -111,11 +111,11 @@ Slack : 0.490
 TNS   : 0.000
 
 Type  : Slow Model Hold 'MASTER_CLOCK'
-Slack : 0.677
+Slack : 0.509
 TNS   : 0.000
 
 Type  : Slow Model Hold 'Ck_100MHz_virt'
-Slack : 5.298
+Slack : 5.301
 TNS   : 0.000
 
 Type  : Slow Model Hold 'n/a'
@@ -123,83 +123,83 @@ Slack : 5.655
 TNS   : 0.000
 
 Type  : Slow Model Hold 'Ck_10MHz_virt'
-Slack : 6.837
+Slack : 6.914
 TNS   : 0.000
 
 Type  : Slow Model Hold 'Ck_40MHz_virt'
-Slack : 7.108
+Slack : 7.102
 TNS   : 0.000
 
 Type  : Slow Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[2]'
-Slack : -4.042
-TNS   : -4.920
+Slack : -4.638
+TNS   : -5.317
 
 Type  : Slow Model Recovery 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]'
-Slack : -2.306
-TNS   : -451.976
+Slack : -2.282
+TNS   : -337.736
 
 Type  : Slow Model Recovery 'ADC_FRAME_CK2'
-Slack : -2.111
-TNS   : -1304.702
-
-Type  : Slow Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
-Slack : -2.108
-TNS   : -263.572
+Slack : -2.045
+TNS   : -1251.254
 
 Type  : Slow Model Recovery 'ADC_FRAME_CK1'
-Slack : -2.066
-TNS   : -1466.921
+Slack : -2.025
+TNS   : -1403.498
+
+Type  : Slow Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
+Slack : -1.370
+TNS   : -278.891
 
 Type  : Slow Model Recovery 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
-Slack : -1.136
-TNS   : -13.616
+Slack : -1.366
+TNS   : -16.245
 
 Type  : Slow Model Recovery 'MASTER_CLOCK'
-Slack : 1.044
+Slack : 0.358
 TNS   : 0.000
 
 Type  : Slow Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
-Slack : 20.010
+Slack : 20.033
 TNS   : 0.000
 
 Type  : Slow Model Recovery 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1'
-Slack : 21.261
-TNS   : 0.000
-
-Type  : Slow Model Removal 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
-Slack : 1.064
-TNS   : 0.000
-
-Type  : Slow Model Removal 'ADC_FRAME_CK1'
-Slack : 1.072
-TNS   : 0.000
-
-Type  : Slow Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
-Slack : 1.076
+Slack : 21.285
 TNS   : 0.000
 
 Type  : Slow Model Removal 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]'
-Slack : 1.084
+Slack : 1.071
 TNS   : 0.000
 
 Type  : Slow Model Removal 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1'
-Slack : 1.084
+Slack : 1.071
 TNS   : 0.000
 
 Type  : Slow Model Removal 'ADC_FRAME_CK2'
-Slack : 1.173
+Slack : 1.072
+TNS   : 0.000
+
+Type  : Slow Model Removal 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
+Slack : 1.073
+TNS   : 0.000
+
+Type  : Slow Model Removal 'ADC_FRAME_CK1'
+Slack : 1.087
 TNS   : 0.000
 
 Type  : Slow Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
-Slack : 1.232
+Slack : 1.242
+TNS   : 0.000
+
+Type  : Slow Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
+Slack : 1.470
 TNS   : 0.000
 
 Type  : Slow Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[2]'
-Slack : 1.879
+Slack : 1.685
 TNS   : 0.000
 
 Type  : Slow Model Removal 'MASTER_CLOCK'
-Slack : 2.138
+Slack : 2.032
 TNS   : 0.000
 
 Type  : Slow Model Minimum Pulse Width 'ADC_LCLK1'
@@ -259,8 +259,8 @@ Slack : 415.789
 TNS   : 0.000
 
 Type  : Fast Model Setup 'Ck_40MHz_virt'
-Slack : -13.508
-TNS   : -32.422
+Slack : -13.509
+TNS   : -32.421
 
 Type  : Fast Model Setup 'Ck_100MHz_virt'
 Slack : -4.436
@@ -270,72 +270,76 @@ Type  : Fast Model Setup 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1'
 Slack : -3.800
 TNS   : -7.567
 
-Type  : Fast Model Setup 'ADC_LCLK2'
-Slack : -1.389
-TNS   : -61.714
-
 Type  : Fast Model Setup 'ADC_LCLK1'
-Slack : -1.218
-TNS   : -57.168
+Slack : -1.681
+TNS   : -62.710
+
+Type  : Fast Model Setup 'ADC_LCLK2'
+Slack : -1.476
+TNS   : -60.625
 
 Type  : Fast Model Setup 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
-Slack : -1.160
-TNS   : -87.391
-
-Type  : Fast Model Setup 'ADC_FRAME_CK1'
-Slack : -0.387
-TNS   : -0.387
-
-Type  : Fast Model Setup 'ADC_FRAME_CK2'
-Slack : -0.302
-TNS   : -0.302
+Slack : -1.328
+TNS   : -92.533
 
 Type  : Fast Model Setup 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
-Slack : -0.064
-TNS   : -0.563
+Slack : -0.650
+TNS   : -10.141
+
+Type  : Fast Model Setup 'ADC_FRAME_CK1'
+Slack : -0.459
+TNS   : -0.459
+
+Type  : Fast Model Setup 'ADC_FRAME_CK2'
+Slack : -0.391
+TNS   : -0.406
 
 Type  : Fast Model Setup 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]'
-Slack : 0.457
+Slack : 0.008
 TNS   : 0.000
 
 Type  : Fast Model Setup 'n/a'
-Slack : 1.495
+Slack : 1.497
 TNS   : 0.000
 
 Type  : Fast Model Setup 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
-Slack : 7.730
+Slack : 7.854
 TNS   : 0.000
 
 Type  : Fast Model Setup 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_rec[0].receive|clkout'
-Slack : 13.861
+Slack : 14.234
 TNS   : 0.000
 
 Type  : Fast Model Setup 'Ck_10MHz_virt'
-Slack : 21.177
+Slack : 21.159
 TNS   : 0.000
 
 Type  : Fast Model Setup 'MASTER_CLOCK'
-Slack : 22.321
+Slack : 23.006
 TNS   : 0.000
 
 Type  : Fast Model Setup 'PLL_Local_Clk_inst|altpll_component|pll|clk[2]'
-Slack : 832.004
+Slack : 831.153
 TNS   : 0.000
 
-Type  : Fast Model Hold 'ADC_LCLK1'
-Slack : -1.978
-TNS   : -50.282
-
 Type  : Fast Model Hold 'ADC_LCLK2'
-Slack : -1.902
-TNS   : -52.274
+Slack : -2.394
+TNS   : -61.957
+
+Type  : Fast Model Hold 'ADC_LCLK1'
+Slack : -1.935
+TNS   : -49.121
 
 Type  : Fast Model Hold 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]'
-Slack : 0.017
+Slack : 0.024
 TNS   : 0.000
 
 Type  : Fast Model Hold 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1'
-Slack : 0.119
+Slack : 0.126
+TNS   : 0.000
+
+Type  : Fast Model Hold 'ADC_FRAME_CK1'
+Slack : 0.212
 TNS   : 0.000
 
 Type  : Fast Model Hold 'ADC_FRAME_CK2'
@@ -350,36 +354,32 @@ Type  : Fast Model Hold 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
 Slack : 0.212
 TNS   : 0.000
 
-Type  : Fast Model Hold 'ADC_FRAME_CK1'
+Type  : Fast Model Hold 'MASTER_CLOCK'
 Slack : 0.213
 TNS   : 0.000
 
 Type  : Fast Model Hold 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
-Slack : 0.213
+Slack : 0.215
 TNS   : 0.000
 
 Type  : Fast Model Hold 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_rec[0].receive|clkout'
-Slack : 0.221
+Slack : 0.224
 TNS   : 0.000
 
 Type  : Fast Model Hold 'PLL_Local_Clk_inst|altpll_component|pll|clk[2]'
 Slack : 0.224
 TNS   : 0.000
 
-Type  : Fast Model Hold 'MASTER_CLOCK'
-Slack : 0.298
-TNS   : 0.000
-
 Type  : Fast Model Hold 'Ck_100MHz_virt'
-Slack : 1.807
+Slack : 1.808
 TNS   : 0.000
 
 Type  : Fast Model Hold 'Ck_10MHz_virt'
-Slack : 1.823
+Slack : 1.841
 TNS   : 0.000
 
 Type  : Fast Model Hold 'Ck_40MHz_virt'
-Slack : 2.699
+Slack : 2.697
 TNS   : 0.000
 
 Type  : Fast Model Hold 'n/a'
@@ -387,75 +387,75 @@ Slack : 3.314
 TNS   : 0.000
 
 Type  : Fast Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[2]'
-Slack : -1.911
-TNS   : -1.911
+Slack : -2.161
+TNS   : -2.161
 
 Type  : Fast Model Recovery 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]'
-Slack : -0.304
-TNS   : -59.584
-
-Type  : Fast Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
-Slack : 0.070
-TNS   : 0.000
+Slack : -0.294
+TNS   : -43.512
 
 Type  : Fast Model Recovery 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
-Slack : 0.112
+Slack : 0.013
 TNS   : 0.000
 
 Type  : Fast Model Recovery 'ADC_FRAME_CK2'
-Slack : 0.240
+Slack : 0.269
 TNS   : 0.000
 
 Type  : Fast Model Recovery 'ADC_FRAME_CK1'
-Slack : 0.267
+Slack : 0.286
+TNS   : 0.000
+
+Type  : Fast Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
+Slack : 0.351
 TNS   : 0.000
 
 Type  : Fast Model Recovery 'MASTER_CLOCK'
-Slack : 3.116
+Slack : 2.852
 TNS   : 0.000
 
 Type  : Fast Model Recovery 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
-Slack : 22.835
+Slack : 22.846
 TNS   : 0.000
 
 Type  : Fast Model Recovery 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1'
-Slack : 23.594
+Slack : 23.604
+TNS   : 0.000
+
+Type  : Fast Model Removal 'ADC_FRAME_CK2'
+Slack : 0.474
 TNS   : 0.000
 
 Type  : Fast Model Removal 'AuroraInterface|aurora_8b10b_arria_gxb_inst|aurora_8b10b_v5_3_inst|gtx_wrapper_i|gxb_transceiver_inst|alt2gxb_component|channel_tx[0].transmit|clkout'
-Slack : 0.414
-TNS   : 0.000
-
-Type  : Fast Model Removal 'ADC_FRAME_CK1'
 Slack : 0.474
 TNS   : 0.000
 
 Type  : Fast Model Removal 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]'
-Slack : 0.477
+Slack : 0.474
 TNS   : 0.000
 
 Type  : Fast Model Removal 'PLL_Global_Clk_inst|altpll_component|pll|clk[0]~1'
-Slack : 0.477
+Slack : 0.474
 TNS   : 0.000
 
-Type  : Fast Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
-Slack : 0.477
+Type  : Fast Model Removal 'ADC_FRAME_CK1'
+Slack : 0.479
 TNS   : 0.000
 
 Type  : Fast Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[0]'
-Slack : 0.502
+Slack : 0.507
 TNS   : 0.000
 
-Type  : Fast Model Removal 'ADC_FRAME_CK2'
-Slack : 0.512
+Type  : Fast Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[1]'
+Slack : 0.641
 TNS   : 0.000
 
 Type  : Fast Model Removal 'PLL_Local_Clk_inst|altpll_component|pll|clk[2]'
-Slack : 0.793
+Slack : 0.723
 TNS   : 0.000
 
 Type  : Fast Model Removal 'MASTER_CLOCK'
-Slack : 0.857
+Slack : 0.805
 TNS   : 0.000
 
 Type  : Fast Model Minimum Pulse Width 'ADC_LCLK1'

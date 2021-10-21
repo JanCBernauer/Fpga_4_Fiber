@@ -257,7 +257,7 @@ begin
 			4: begin // Write original header
 				bit_count <= 0;
 				HEADER_SEEN <= 0;
-				if( NO_MORE_SPACE_FOR_EVENT == 0 )
+				if( NO_MORE_SPACE_FOR_EVENT == 1 )
 				begin
 					missed_event <= 1;
 				end

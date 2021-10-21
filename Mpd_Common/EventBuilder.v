@@ -115,7 +115,7 @@ BLOCK_TRAILER
 `define MAX_LOOP_DATA	35246	// 133 * 16 * 16, should be 133 * enabled_channels * SAMPLE_PER_EVENT
 
 
-module EventBuilder(RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR, SAMPLE_PER_EVENT, EVENT_PER_BLOCK,
+module EventBuilder(RSTb, APV_CLOCK, CLK, TRIGGER, SYNC, ALL_CLEAR, SAMPLE_PER_EVENT, EVENT_PER_BLOCK,
 	ENABLE_MASK, ENABLE_EVBUILD,
 	DISABLE_DEADLOCK,
 	CH_DATA0, CH_DATA1, CH_DATA2, CH_DATA3, CH_DATA4, CH_DATA5, CH_DATA6, CH_DATA7,
@@ -123,10 +123,10 @@ module EventBuilder(RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR, SAMPLE_PER_EVENT, 
 	DATA_RD, EVENT_PRESENT, DECREMENT_EVENT_COUNT, MODULE_ID,
 	DATA_OUT, EMPTY, FULL, ALMOST_FULL, DATA_OUT_CNT, DATA_OUT_RD, EV_CNT, BLOCK_CNT,
 	EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L,
-	WAITING_ON_APV_MASK
+	WAITING_ON_APV_MASK, SyncCounter
 );
 
-input RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR;
+input RSTb, APV_CLOCK, CLK, TRIGGER, ALL_CLEAR, SYNC;
 input [4:0] SAMPLE_PER_EVENT;
 input [7:0] EVENT_PER_BLOCK;
 input [15:0] ENABLE_MASK;
@@ -150,6 +150,7 @@ output [23:0] EV_CNT;
 output [7:0] BLOCK_CNT;
 output EVB_FIFO_FULL_L, EVENT_FIFO_FULL_L, TIME_FIFO_FULL_L;
 output [15:0] WAITING_ON_APV_MASK;
+output [7:0] SyncCounter;
 
 reg [15:0] WAITING_ON_APV_MASK;
 reg [15:0] DATA_RD;
@@ -169,6 +170,7 @@ reg [31:0] data_bus;
 //reg [23:0] data_bus;
 reg [11:0] DataWordCount;
 reg [25:0] ChannelData_a;
+reg [7:0] SyncCounter;
 
 wire AllEnabledChannelsHaveEvent;
 reg TimeCounterFifo_Read, OutputFifo_Write;
@@ -294,21 +296,25 @@ Fifo_2048x24 OutputFifo(.aclr(FifoReset), .clock(CLK),
 		end
 	end
 
-// TIME Counter
+// SYNC Counter
 	always @(posedge APV_CLOCK)
-		clear_time_counter <= ALL_CLEAR;
-
-	always @(posedge APV_CLOCK or negedge RSTb)
 	begin
 		if( RSTb == 0 )
-			TimeCounter <= 0;
+			SyncCounter <= 0;
 		else
 		begin
-			if( clear_time_counter == 1 )
-				TimeCounter <= 0;
-			else
-				TimeCounter <= TimeCounter + 1;
+			if( SYNC == 1 )
+				SyncCounter <= SyncCounter + 1;
 		end
+	end
+	
+// TIME Counter
+	always @(posedge APV_CLOCK)
+	begin
+		if( SYNC == 1 )
+			TimeCounter <= 0;
+		else
+			TimeCounter <= TimeCounter + 1;
 	end
 
 // Channel Data Selector

@@ -602,7 +602,8 @@ module FifoIf(FIFO_RD,
 	writefull_cnt0, writefull_cnt1, writefull_cnt2, writefull_cnt3,
 	writefull_cnt4, writefull_cnt5, writefull_cnt6, writefull_cnt7,
 	writefull_cnt8, writefull_cnt9, writefull_cnt10, writefull_cnt11,
-	writefull_cnt12, writefull_cnt13, writefull_cnt14, writefull_cnt15
+	writefull_cnt12, writefull_cnt13, writefull_cnt14, writefull_cnt15,
+	SyncCounter
 );
 
 output [15:0] FIFO_RD;
@@ -619,7 +620,7 @@ input RSTb, CLK, WEb, REb, OEb, FIFO_CEb, THR_CEb, PED_CEb, OBUF_STATUS_CEb;
 input [15:0] USER_ADDR;
 output [31:0] DATA_OUT;
 input [31:0] INCOMING_TRIGGER_CNT;
-input [15:0] MISSED_TRIGGER;
+input [7:0] MISSED_TRIGGER;
 input [15:0] WAITING_ON_APV_MASK;
 output [15:0] WE_PED_RAM, RE_PED_RAM, WE_THR_RAM;//, RE_THR_RAM;
 input [23:0] EV_BUILDER_DATA_OUT;
@@ -629,6 +630,7 @@ input [15:0] EV_BUILDER_FIFO_WC;
 input [23:0] EV_BUILDER_EV_CNT;
 input [7:0] EV_BUILDER_BLOCK_CNT;
 input [7:0] OBUF_BLOCK_CNT;
+input [7:0] SyncCounter;
 
 input [31:0] TRIGGER_COUNTER;
 input SDRAM_INITIALIZED;
@@ -913,7 +915,7 @@ begin
 		16'b0000_0000_1000_0010: int_data <= {8'h0, OBUF_BLOCK_CNT, 8'h0, EV_BUILDER_BLOCK_CNT};	// 0x208
 		16'b0000_0000_1000_0011: int_data <= TRIGGER_COUNTER;	// 0x20C
 //		16'b0000_0000_1000_0100: int_data <= MISSED_TRIGGER;	// 0x210
-		16'b0000_0000_1000_0100: int_data <= {WAITING_ON_APV_MASK, MISSED_TRIGGER};	// 0x210
+		16'b0000_0000_1000_0100: int_data <= {WAITING_ON_APV_MASK, SyncCounter, MISSED_TRIGGER};	// 0x210
 		16'b0000_0000_1000_0101: int_data <= INCOMING_TRIGGER_CNT;	// 0x214
 		
 		16'b0000_0000_1000_0110: int_data <= {SDRAM_INITIALIZED, 6'h0, SDRAM_FIFO_WRITE_ADDRESS};	// 0x218
