@@ -591,7 +591,7 @@ input [15:0] USER_ADDR;
 output [31:0] DATA_OUT;
 input [31:0] MISSED_TRIGGER, INCOMING_TRIGGER_CNT;
 output [15:0] WE_PED_RAM, RE_PED_RAM, WE_THR_RAM;//, RE_THR_RAM;
-input [23:0] EV_BUILDER_DATA_OUT;
+input [31:0] EV_BUILDER_DATA_OUT;
 input EV_BUILDER_ENABLE;
 input EV_BUILDER_FIFO_EMPTY, EV_BUILDER_FIFO_FULL;
 input [15:0] EV_BUILDER_FIFO_WC;
@@ -775,7 +775,7 @@ always @(*)
 begin
 	casex( USER_ADDR )
     // even address accesses lower 13b of 26b APV FIFO
-		16'b0100_0???_????_???0: int_data <= EV_BUILDER_ENABLE ? {8'h0, EV_BUILDER_DATA_OUT} : {6'h0, FIFO_DATA_OUT0[12:0]};	// 0x10000..0x11FFC APV data Ch0
+		16'b0100_0???_????_???0: int_data <= EV_BUILDER_ENABLE ? {EV_BUILDER_DATA_OUT} : {6'h0, FIFO_DATA_OUT0[12:0]};	// 0x10000..0x11FFC APV data Ch0
 		16'b0100_1???_????_???0: int_data <= {6'h0, FIFO_DATA_OUT1[12:0]};	// 0x12000..0x13FFC APV data Ch1
 		16'b0101_0???_????_???0: int_data <= {6'h0, FIFO_DATA_OUT2[12:0]};	// 0x14000..0x15FFC APV data Ch2
 		16'b0101_1???_????_???0: int_data <= {6'h0, FIFO_DATA_OUT3[12:0]};	// 0x16000..0x17FFC APV data Ch3
@@ -793,7 +793,7 @@ begin
 		16'b1011_1???_????_???0: int_data <= {6'h0, FIFO_DATA_OUT15[12:0]};	// 0x2E000..0x2FFFC APV data Ch15
 
     // odd address accesses upper 13b of 26b APV FIFO
-		16'b0100_0???_????_???1: int_data <= EV_BUILDER_ENABLE ? {8'h0, EV_BUILDER_DATA_OUT} : {6'h0, FIFO_DATA_OUT0[25:13]};	// 0x10000..0x11FFC APV data Ch0
+		16'b0100_0???_????_???1: int_data <= EV_BUILDER_ENABLE ? {EV_BUILDER_DATA_OUT} : {6'h0, FIFO_DATA_OUT0[25:13]};	// 0x10000..0x11FFC APV data Ch0
 		16'b0100_1???_????_???1: int_data <= {6'h0, FIFO_DATA_OUT1[25:13]};	// 0x12000..0x13FFC APV data Ch1
 		16'b0101_0???_????_???1: int_data <= {6'h0, FIFO_DATA_OUT2[25:13]};	// 0x14000..0x15FFC APV data Ch2
 		16'b0101_1???_????_???1: int_data <= {6'h0, FIFO_DATA_OUT3[25:13]};	// 0x16000..0x17FFC APV data Ch3

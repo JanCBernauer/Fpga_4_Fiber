@@ -202,12 +202,12 @@ endmodule
 
 // From here faster machinery...
 
-module Reg24(RSTb, CLK, LOAD, D, Q);
+module Reg32(RSTb, CLK, LOAD, D, Q);
 input RSTb, CLK, LOAD;
-input [23:0] D;
-output [23:0] Q;
+input [31:0] D;
+output [31:0] Q;
 
-reg [23:0] Q;
+reg [31:0] Q;
 
 	always @(posedge CLK or negedge RSTb)
 	begin
@@ -545,7 +545,7 @@ input USER_RE, USER_64BIT, PACK_DATA;
 output RD_EVB;
 output [63:0] USER_DATA;
 input [11:0] WC_EVB;
-input [23:0] DATA_EVB;
+input [31:0] DATA_EVB;
 input EMPTY_EVB, FULL_EVB;
 output OUTPUT_FIFO_EMPTY, OUTPUT_FIFO_FULL;
 output [12:0] OUTPUT_FIFO_WC;
@@ -585,8 +585,8 @@ assign SdramWordCount32 = {7'h0, SDRAM_WORD_COUNT};
 assign SDRAM_ADDR = WriteFsmIdle ? SDRAM_READ_ADDRESS : SDRAM_WRITE_ADDRESS;
 //assign OutputFifoEndOfBlockIn = (Data64Bit[55:52] == 4'b0010 || Data64Bit[23:20] == 4'b0010) ? 1 : 0;	// 4'b0010 = {3'h1, 1'b0}
 //assign OutputFifoEndOfBlockOut = (DataOut64bit[55:52] == 4'b0010 || DataOut64bit[23:20] == 4'b0010) ? 1 : 0;	// 4'b0010 = {3'h1, 1'b0}
-assign OutputFifoEndOfBlockIn = (Data64Bit[23:20] == 4'b0010) ? 1 : 0;	// 4'b0010 = {3'h1, 1'b0}
-assign OutputFifoEndOfBlockOut = (DataOut64bit[23:20] == 4'b0010) ? 1 : 0;	// 4'b0010 = {3'h1, 1'b0}
+assign OutputFifoEndOfBlockIn = (Data64Bit[31:27] == 5'b10001) ? 1 : 0;	// 4'b0010 = {3'h1, 1'b0}
+assign OutputFifoEndOfBlockOut = (DataOut64bit[31:27] == 5'b10001) ? 1 : 0;	// 4'b0010 = {3'h1, 1'b0}
 assign OutputFifoWr = OutputFifoWrSdram | OutputFifoWrNoSdram;
 
 /*
@@ -596,7 +596,7 @@ Sdram2432Formatter EvbFormatter(.RSTb(RSTb), .CLK(CLK), .ENABLE(ENABLE),
 	);
 */
 
-assign SDRAM_INPUT_DATA = {8'h0, DATA_EVB};
+assign SDRAM_INPUT_DATA = DATA_EVB;
 
 SdramWriteMachine WriteHandler(.RSTb(RSTb), .CLK(CLK), .ENABLE(ENABLE), .CLEAR_ADDR(CLEAR_ADDR),
 	.SDRAM_WRITE_REQ(SDRAM_WRITE_REQ), .SDRAM_READY(SDRAM_READY),
@@ -628,11 +628,8 @@ TransparentMachine TransparentHandler(.RSTb(RSTb), .CLK(CLK), .ENABLE(~ENABLE), 
 	.OUTPUT_FIFO_WR(OutputFifoWrNoSdram)
 	);
 
-assign Data64Bit[63:56] = 8'b0;
-assign Data64Bit[31:24] = 8'b0;
-	
-Reg24 LsbDataReg(.RSTb(RSTb), .CLK(CLK), .LOAD(LoadLsb|LoadLsbNoSdram), .D(ENABLE ? SDRAM_RDATA[23:0] : DATA_EVB), .Q(Data64Bit[55:32]));
-Reg24 MsbDataReg(.RSTb(RSTb), .CLK(CLK), .LOAD(LoadMsb|LoadMsbNoSdram), .D(ENABLE ? SDRAM_RDATA[23:0] : DATA_EVB), .Q(Data64Bit[23:0]));
+Reg32 LsbDataReg(.RSTb(RSTb), .CLK(CLK), .LOAD(LoadLsb|LoadLsbNoSdram), .D(ENABLE ? SDRAM_RDATA[31:0] : DATA_EVB), .Q(Data64Bit[63:32]));
+Reg32 MsbDataReg(.RSTb(RSTb), .CLK(CLK), .LOAD(LoadMsb|LoadMsbNoSdram), .D(ENABLE ? SDRAM_RDATA[31:0] : DATA_EVB), .Q(Data64Bit[31:0]));
 
 ComputeWordCount WordCountCalculator(.RSTb(RSTb), .CLK(CLK), .CLEAR(CLEAR_ADDR),
 	.SDRAM_WRITE_ADDRESS(SDRAM_WRITE_ADDRESS), .SDRAM_READ_ADDRESS(SDRAM_READ_ADDRESS),
