@@ -1,5 +1,5 @@
-Partition Merge report for Fpga
-Thu Feb 24 11:39:58 2022
+Partition Merge report for Fpga41
+Thu Feb 24 12:01:32 2022
 Quartus II 64-Bit Version 13.0.1 Build 232 06/12/2013 Service Pack 1.78 SJ Full Version
 
 
@@ -40,13 +40,13 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------------------+
 ; Partition Merge Summary                                                              ;
 +--------------------------------+-----------------------------------------------------+
-; Partition Merge Status         ; Successful - Thu Feb 24 11:39:58 2022               ;
+; Partition Merge Status         ; Successful - Thu Feb 24 12:01:32 2022               ;
 ; Quartus II 64-Bit Version      ; 13.0.1 Build 232 06/12/2013 SP 1.78 SJ Full Version ;
-; Revision Name                  ; Fpga                                                ;
+; Revision Name                  ; Fpga41                                              ;
 ; Top-level Entity Name          ; Fpga                                                ;
 ; Family                         ; Arria GX                                            ;
 ; Logic utilization              ; N/A                                                 ;
-;     Combinational ALUTs        ; 12,619                                              ;
+;     Combinational ALUTs        ; 12,611                                              ;
 ;     Dedicated logic registers  ; 14,849                                              ;
 ; Total registers                ; 14881                                               ;
 ; Total pins                     ; 287                                                 ;
@@ -118,8 +118,8 @@ Note: The Incremental Compilation Advisor can be used to get more detailed recom
 ;     -- Registered Output Connections  ; 22     ; 288                ; 252                ; 0                              ;
 ;                                       ;        ;                    ;                    ;                                ;
 ; Internal Connections                  ;        ;                    ;                    ;                                ;
-;     -- Total Connections              ; 107859 ; 974                ; 938                ; 6220                           ;
-;     -- Registered Connections         ; 55815  ; 972                ; 924                ; 0                              ;
+;     -- Total Connections              ; 107867 ; 974                ; 938                ; 6220                           ;
+;     -- Registered Connections         ; 55869  ; 972                ; 924                ; 0                              ;
 ;                                       ;        ;                    ;                    ;                                ;
 ; External Connections                  ;        ;                    ;                    ;                                ;
 ;     -- Top                            ; 0      ; 588                ; 552                ; 6150                           ;
@@ -154,26 +154,26 @@ Note: Resource usage numbers presented for Partitions containing post-synthesis 
 +----------------------------------------------+---------------+
 ; Resource                                     ; Usage         ;
 +----------------------------------------------+---------------+
-; Estimated ALUTs Used                         ; 12619         ;
+; Estimated ALUTs Used                         ; 12611         ;
 ; Dedicated logic registers                    ; 14849         ;
 ;                                              ;               ;
-; Estimated ALUTs Unavailable                  ; 56            ;
+; Estimated ALUTs Unavailable                  ; 58            ;
 ;                                              ;               ;
-; Total combinational functions                ; 12619         ;
+; Total combinational functions                ; 12611         ;
 ; Combinational ALUT usage by number of inputs ;               ;
-;     -- 7 input functions                     ; 56            ;
-;     -- 6 input functions                     ; 2151          ;
-;     -- 5 input functions                     ; 1643          ;
-;     -- 4 input functions                     ; 1719          ;
-;     -- <=3 input functions                   ; 7050          ;
+;     -- 7 input functions                     ; 58            ;
+;     -- 6 input functions                     ; 2160          ;
+;     -- 5 input functions                     ; 1639          ;
+;     -- 4 input functions                     ; 1718          ;
+;     -- <=3 input functions                   ; 7036          ;
 ;                                              ;               ;
 ; Combinational ALUTs by mode                  ;               ;
-;     -- normal mode                           ; 9237          ;
-;     -- extended LUT mode                     ; 56            ;
+;     -- normal mode                           ; 9227          ;
+;     -- extended LUT mode                     ; 58            ;
 ;     -- arithmetic mode                       ; 2826          ;
 ;     -- shared arithmetic mode                ; 500           ;
 ;                                              ;               ;
-; Estimated ALUT/register pairs used           ; 18821         ;
+; Estimated ALUT/register pairs used           ; 18817         ;
 ;                                              ;               ;
 ; Total registers                              ; 14881         ;
 ;     -- Dedicated logic registers             ; 14849         ;
@@ -190,7 +190,7 @@ Note: Resource usage numbers presented for Partitions containing post-synthesis 
 ; GXB Transmitter channels                     ; 1             ;
 ; Maximum fan-out node                         ; ADC_FRAME_CK1 ;
 ; Maximum fan-out                              ; 5755          ;
-; Total fan-out                                ; 103175        ;
+; Total fan-out                                ; 103183        ;
 ; Average fan-out                              ; 3.63          ;
 +----------------------------------------------+---------------+
 
@@ -258,10 +258,8 @@ Note: number of DSP Blocks used is only available after a successful fit.
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Partition Merge
     Info: Version 13.0.1 Build 232 06/12/2013 Service Pack 1.78 SJ Full Version
-    Info: Processing started: Thu Feb 24 11:39:54 2022
-Info: Command: quartus_cdb --read_settings_files=off --write_settings_files=off Fpga -c Fpga --merge=on
-Warning (125092): Tcl Script File ../Mpd_Common/DcFifo_16x20.qip not found
-    Info (125063): set_global_assignment -name QIP_FILE ../Mpd_Common/DcFifo_16x20.qip
+    Info: Processing started: Thu Feb 24 12:01:29 2022
+Info: Command: quartus_cdb --read_settings_files=off --write_settings_files=off Fpga -c Fpga41 --merge=on
 Info (35007): Using synthesis netlist for partition "Top"
 Info (35007): Using synthesis netlist for partition "AdcDeser:AdcDeser0"
 Info (35007): Using synthesis netlist for partition "AdcDeser:AdcDeser1"
@@ -304,25 +302,25 @@ Warning (21074): Design contains 28 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "SWITCH[0]"
     Warning (15610): No output dependent on input pin "SWITCH[2]"
     Warning (15610): No output dependent on input pin "SWITCH[3]"
-    Warning (15610): No output dependent on input pin "GXB_CK2"
+    Warning (15610): No output dependent on input pin "GXB_CK"
     Warning (15610): No output dependent on input pin "TRIG1_IN"
     Warning (15610): No output dependent on input pin "TRIG2_IN"
     Warning (15610): No output dependent on input pin "SYNC_IN"
     Warning (15610): No output dependent on input pin "STATBIT_A_IN"
     Warning (15610): No output dependent on input pin "STATBIT_B_IN"
     Warning (15610): No output dependent on input pin "CLK_IN_P0"
-Info (21057): Implemented 23111 device resources after synthesis - the final resource count might be different
+Info (21057): Implemented 23103 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 76 input pins
     Info (21059): Implemented 86 output pins
     Info (21060): Implemented 125 bidirectional pins
-    Info (21061): Implemented 22076 logic cells
+    Info (21061): Implemented 22068 logic cells
     Info (21064): Implemented 499 RAM segments
     Info (21065): Implemented 2 PLLs
     Info (21062): Implemented 240 DSP elements
-Info: Quartus II 64-Bit Partition Merge was successful. 0 errors, 43 warnings
-    Info: Peak virtual memory: 1040 megabytes
-    Info: Processing ended: Thu Feb 24 11:39:59 2022
-    Info: Elapsed time: 00:00:05
-    Info: Total CPU time (on all processors): 00:00:05
+Info: Quartus II 64-Bit Partition Merge was successful. 0 errors, 42 warnings
+    Info: Peak virtual memory: 1043 megabytes
+    Info: Processing ended: Thu Feb 24 12:01:33 2022
+    Info: Elapsed time: 00:00:04
+    Info: Total CPU time (on all processors): 00:00:04
 
 

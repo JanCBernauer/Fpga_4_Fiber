@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE pinplan>
+<pinplan intended_family="Arria GX" variation_name="gxb_transceiver_125M" megafunction_name="ALTGX" specifies="all_ports">
+<global>
+<pin name="cal_blk_clk" direction="input" scope="external"  />
+<pin name="pll_inclk" direction="input" scope="external"  />
+<pin name="rx_analogreset[0..0]" direction="input" scope="external"  />
+<pin name="rx_datain[0..0]" direction="input" scope="external"  />
+<pin name="rx_digitalreset[0..0]" direction="input" scope="external"  />
+<pin name="rx_enapatternalign[0..0]" direction="input" scope="external"  />
+<pin name="tx_ctrlenable[1..0]" direction="input" scope="external"  />
+<pin name="tx_datain[15..0]" direction="input" scope="external"  />
+<pin name="tx_digitalreset[0..0]" direction="input" scope="external"  />
+<pin name="pll_locked[0..0]" direction="output" scope="external"  />
+<pin name="rx_clkout[0..0]" direction="output" scope="external"  />
+<pin name="rx_ctrldetect[1..0]" direction="output" scope="external"  />
+<pin name="rx_dataout[15..0]" direction="output" scope="external"  />
+<pin name="rx_disperr[1..0]" direction="output" scope="external"  />
+<pin name="rx_errdetect[1..0]" direction="output" scope="external"  />
+<pin name="rx_freqlocked[0..0]" direction="output" scope="external"  />
+<pin name="rx_patterndetect[1..0]" direction="output" scope="external"  />
+<pin name="rx_syncstatus[1..0]" direction="output" scope="external"  />
+<pin name="tx_clkout[0..0]" direction="output" scope="external"  />
+<pin name="tx_dataout[0..0]" direction="output" scope="external"  />
+
+</global>
+</pinplan>

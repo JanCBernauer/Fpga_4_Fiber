@@ -43,6 +43,7 @@ create_clock -name ADC_FRAME_CK2 -period $frame_period_DDR_adc [get_ports ADC_FR
 #create_clock -name MASTER_CLOCK -period $master_ck_period [get_ports MASTER_CLOCK]
 create_clock -name MASTER_CLOCK2 -period $master_ck_period [get_ports MASTER_CLOCK2]
 create_clock -name GXB_CK -period 16.0 [get_ports GXB_CK]
+create_clock -name GXB_CK2 -period 8.0 [get_ports GXB_CK]
 #create_clock -name CLK_IN_P0 -period 16.0 [get_ports CLK_IN_P0]
 
 create_generated_clock -source [get_ports {MASTER_CLOCK2}] -divide_by 1 -multiply_by 1 -duty_cycle 50 -phase 0 -offset 0 \

@@ -1,20 +1,20 @@
 # Copyright (C) 1991-2008 Altera Corporation
-# Your use of Altera Corporation's design tools, logic functions 
-# and other software and tools, and its AMPP partner logic 
-# functions, and any output files from any of the foregoing 
-# (including device programming or simulation files), and any 
-# associated documentation or information are expressly subject 
-# to the terms and conditions of the Altera Program License 
-# Subscription Agreement, Altera MegaCore Function License 
-# Agreement, or other applicable license agreement, including, 
-# without limitation, that your use is for the sole purpose of 
-# programming logic devices manufactured by Altera and sold by 
-# Altera or its authorized distributors.  Please refer to the 
+# Your use of Altera Corporation's design tools, logic functions
+# and other software and tools, and its AMPP partner logic
+# functions, and any output files from any of the foregoing
+# (including device programming or simulation files), and any
+# associated documentation or information are expressly subject
+# to the terms and conditions of the Altera Program License
+# Subscription Agreement, Altera MegaCore Function License
+# Agreement, or other applicable license agreement, including,
+# without limitation, that your use is for the sole purpose of
+# programming logic devices manufactured by Altera and sold by
+# Altera or its authorized distributors.  Please refer to the
 # applicable agreement for further details.
 
 
 # The default values for assignments are stored in the file
-#		Fpga_assignment_defaults.qdf
+#		Fpga41_assignment_defaults.qdf
 # If this file doesn't exist, and for assignments not listed, see file
 #		assignment_defaults.qdf
 
@@ -32,11 +32,10 @@ set_global_assignment -name ENABLE_DEVICE_WIDE_RESET ON
 set_global_assignment -name STRATIXII_CONFIGURATION_SCHEME "ACTIVE SERIAL"
 set_global_assignment -name GENERATE_TTF_FILE ON
 set_global_assignment -name RESERVE_ASDO_AFTER_CONFIGURATION "AS INPUT TRI-STATED"
-set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "AS INPUT TRI-STATED"
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED WITH WEAK PULL-UP"
 set_global_assignment -name TOP_LEVEL_ENTITY Fpga
-set_global_assignment -name ORIGINAL_QUARTUS_VERSION 8.1
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:41:19  AUGUST 25, 2009"
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1.78"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:27:33  FEBRUARY 23, 2022"
 set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1.78"
 set_global_assignment -name USE_GENERATED_PHYSICAL_CONSTRAINTS OFF -section_id eda_blast_fpga
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
@@ -573,8 +572,6 @@ set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "15 MM HEAT SINK WITH 100 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name FITTER_EFFORT "AUTO FIT"
-set_global_assignment -name STRATIXII_OPTIMIZATION_TECHNIQUE BALANCED
 set_global_assignment -name SAFE_STATE_MACHINE ON
 
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id "AdcDeser:AdcDeser0"
@@ -730,7 +727,6 @@ set_global_assignment -name QIP_FILE ../Mpd_Common/Fifo_2048x21.qip
 set_global_assignment -name QIP_FILE ../Mpd_Common/Fifo_256x13.qip
 set_global_assignment -name QIP_FILE ../Mpd_Common/ApvDataFifo_2048x12.qip
 set_global_assignment -name QIP_FILE ../Mpd_Common/DdrIn.qip
-set_global_assignment -name QIP_FILE ../Mpd_Common/Gxb.qip
 set_global_assignment -name QIP_FILE ./GlobalPll.qip
 set_global_assignment -name QIP_FILE ../Mpd_Common/SpRam_4096x32.qip
 set_global_assignment -name QIP_FILE ../Mpd_Common/DpRam128x12.qip
@@ -754,13 +750,14 @@ set_instance_assignment -name FAST_INPUT_REGISTER ON -to USER_IN_TTL[0]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to USER_IN_TTL[1]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to USER_IN_NIM[0]
 set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to USER_IN_NIM[1]
-set_global_assignment -name QIP_FILE ../Mpd_Common/DcFifo_16x20.qip
 set_global_assignment -name QIP_FILE ../Mpd_Common/DcFifo_16x48.qip
-set_parameter -name MPD_HW_Revision 40
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_instance_assignment -name PARTITION_HIERARCHY adcde_ce6789f6b1bda6acdfac2de38ddff5791 -to "AdcDeser:AdcDeser0" -section_id "AdcDeser:AdcDeser0"
-set_instance_assignment -name PARTITION_HIERARCHY adcde_7334cb947c9244b65ecb94947349c541 -to "AdcDeser:AdcDeser1" -section_id "AdcDeser:AdcDeser1"
 set_instance_assignment -name IO_STANDARD LVDS -to GXB_CK2
 set_location_assignment PIN_J1 -to GXB_CK2
 set_location_assignment PIN_J2 -to "GXB_CK2(n)"
+set_parameter -name MPD_HW_Revision 41
 set_instance_assignment -name GXB_REFCLK_COUPLING_TERMINATION_SETTING "OCT 100 OHMS" -to GXB_CK2
+set_global_assignment -name QIP_FILE ../Mpd_Common/gxb_transceiver_125M.qip
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_instance_assignment -name PARTITION_HIERARCHY adcde_ce6789f6b1bda6acdfac2de38ddff5791 -to "AdcDeser:AdcDeser0" -section_id "AdcDeser:AdcDeser0"
+set_instance_assignment -name PARTITION_HIERARCHY adcde_7334cb947c9244b65ecb94947349c541 -to "AdcDeser:AdcDeser1" -section_id "AdcDeser:AdcDeser1"
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to GXB_CK

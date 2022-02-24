@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 
 entity aurora_8b10b_arria_gxb is
 	generic(
-		SIM_GTXRESET_SPEEDUP	: integer := 0      
+		SIM_GTXRESET_SPEEDUP	: integer := 0;
+		MPD_HW_Revision      :integer :=  40
 	);
 	port(
 		USER_CLK			: in std_logic;
@@ -36,14 +37,16 @@ entity aurora_8b10b_arria_gxb is
 		RXP				: in std_logic;
 		TXP				: out std_logic;
 
-		REFCLK			: in std_logic
+		REFCLK         : in std_logic;
+		REFCLK2        : in std_logic
 	);
 end aurora_8b10b_arria_gxb;
 
 architecture synthesis of aurora_8b10b_arria_gxb is
 	component aurora_8b10b_v5_3 is
 		generic(
-			SIM_GTXRESET_SPEEDUP	:integer := 0      
+			SIM_GTXRESET_SPEEDUP	:integer := 0;
+			MPD_HW_Revision      :integer
 		);
 		port(
 			-- LocalLink TX Interface
@@ -66,6 +69,7 @@ architecture synthesis of aurora_8b10b_arria_gxb is
 			TXN					: out std_logic;
 			--GTX Reference Clock Interface
 			GTXD19				: in std_logic;
+			GTXD19_2          : in  std_logic;
 			-- Error Detection Interface
 			HARD_ERR				: out std_logic;
 			SOFT_ERR				: out std_logic;
@@ -120,7 +124,8 @@ begin
 
 	aurora_8b10b_v5_3_inst: aurora_8b10b_v5_3
 		generic map(
-			SIM_GTXRESET_SPEEDUP		=> SIM_GTXRESET_SPEEDUP
+			SIM_GTXRESET_SPEEDUP		=> SIM_GTXRESET_SPEEDUP,
+			MPD_HW_Revision         => MPD_HW_Revision
 		)
 		port map(
 			TX_D				=> TX_D,
@@ -139,6 +144,7 @@ begin
 			TXP				=> TXP,
 			TXN				=> open,
 			GTXD19			=> REFCLK,
+			GTXD19_2       => REFCLK2,
 			HARD_ERR			=> HARD_ERR,
 			SOFT_ERR			=> SOFT_ERR,
 			FRAME_ERR		=> FRAME_ERR,

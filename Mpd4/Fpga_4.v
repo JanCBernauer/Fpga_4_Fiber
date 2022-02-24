@@ -37,7 +37,7 @@ module Fpga(
 
 	LED, SWITCH,
 
-	GXB_TX, GXB_RX, GXB_PRESENT, GXB_TX_DISABLE, GXB_RX_LOS, GXB_CK,
+	GXB_TX, GXB_RX, GXB_PRESENT, GXB_TX_DISABLE, GXB_RX_LOS, GXB_CK, GXB_CK2,
 
 	TOKEN_OUT_P0, TOKEN_OUT_P2, TOKEN_IN_P0, TOKEN_IN_P2,
 	TRIG_OUT, BUSY_OUT, SD_LINK_OUT,
@@ -51,6 +51,7 @@ module Fpga(
 	SPARE25,
 	SPARE_CLK_LVDS, SPARE_CLK_TTL
 );
+parameter MPD_HW_Revision =  40;
 // Port interface definition
 input MASTER_RESETb, MASTER_CLOCK, MASTER_CLOCK2;
 
@@ -112,7 +113,7 @@ output [3:0] LED;
 input [3:0] SWITCH;
 
 output GXB_TX, GXB_TX_DISABLE;
-input GXB_RX, GXB_PRESENT, GXB_RX_LOS, GXB_CK;
+input GXB_RX, GXB_PRESENT, GXB_RX_LOS, GXB_CK, GXB_CK2;
 
 output TOKEN_OUT_P0, TOKEN_OUT_P2;
 input TOKEN_IN_P0, TOKEN_IN_P2;
@@ -607,7 +608,7 @@ assign SDRAM_ODT = 0;
 //	.soft_reset_n (1'b1)		// 200-300 us are needed before initialization
 //    );
 
-	mpd_fiber_interface AuroraInterface(
+	mpd_fiber_interface #(.MPD_HW_Revision(MPD_HW_Revision)) AuroraInterface(
 			.FIBER_USER_CLK(ck_125MHz_out),		// output
 
 //			-- Fiber link status/control
@@ -647,7 +648,7 @@ assign SDRAM_ODT = 0;
 			.EVT_FIFO_END(AuroraEndOfFrame),		// input
 
 //			-- Serial(2.5Gbps)/Refclk(62.5MHz) I/O
-			.RXP(GXB_RX), .TXP(GXB_TX), .REFCLK(GXB_CK));
+			.RXP(GXB_RX), .TXP(GXB_TX), .REFCLK(GXB_CK), .REFCLK2(GXB_CK2));
 
 	FiberInterface FiberInterface_Instance(
 		.CLK(Vme_clock),		// input, system

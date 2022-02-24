@@ -7,6 +7,9 @@ library altera_mf;
 use altera_mf.altera_mf_components.all;
 
 entity mpd_fiber_interface is
+   generic(
+			MPD_HW_Revision        :integer :=  40
+	);
 	port(
 			FIBER_USER_CLK			: out std_logic;
 
@@ -45,14 +48,16 @@ entity mpd_fiber_interface is
 			RXP						: in std_logic;
 			TXP						: out std_logic;
 
-			REFCLK					: in std_logic
+			REFCLK					: in std_logic;
+			REFCLK2              : in std_logic
 	);
 end mpd_fiber_interface;
 
 architecture synthesis of mpd_fiber_interface is
 	component aurora_8b10b_arria_gxb is
 		generic(
-			SIM_GTXRESET_SPEEDUP	: integer := 0      
+			SIM_GTXRESET_SPEEDUP	: integer := 0;
+			MPD_HW_Revision      :integer :=  40
 		);
 		port(
 			USER_CLK			: in std_logic;
@@ -85,7 +90,8 @@ architecture synthesis of mpd_fiber_interface is
 			RXP				: in std_logic;
 			TXP				: out std_logic;
 
-			REFCLK			: in std_logic
+			REFCLK			: in std_logic;
+			REFCLK2        : in std_logic
 		);
 	end component;
 
@@ -224,7 +230,8 @@ begin
 
 	aurora_8b10b_arria_gxb_inst: aurora_8b10b_arria_gxb
 		generic map(
-			SIM_GTXRESET_SPEEDUP	=> 0
+			SIM_GTXRESET_SPEEDUP	=> 0,
+			MPD_HW_Revision      => MPD_HW_Revision
 		)
 		port map(
 			USER_CLK			=> USER_CLK_i,
@@ -248,7 +255,8 @@ begin
 			TX_LOCK			=> TX_LOCK,
 			RXP				=> RXP,
 			TXP				=> TXP,
-			REFCLK			=> REFCLK
+			REFCLK			=> REFCLK,
+			REFCLK2			=> REFCLK2
 		);
 
 end synthesis;

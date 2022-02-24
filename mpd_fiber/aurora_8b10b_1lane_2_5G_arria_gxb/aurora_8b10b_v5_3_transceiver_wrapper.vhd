@@ -5,7 +5,8 @@ use ieee.std_logic_arith.all;
 
 entity aurora_8b10b_v5_3_GTX_WRAPPER is
 generic(
-SIM_GTXRESET_SPEEDUP   :integer :=   0      --Set to 1 to speed up sim reset
+SIM_GTXRESET_SPEEDUP   :integer :=   0;      --Set to 1 to speed up sim reset
+MPD_HW_Revision        :integer :=  40
 );
 port
 (
@@ -55,6 +56,7 @@ RXPOLARITY_IN     : in    std_logic;
 ------------------- Shared Ports - Tile and PLL Ports --------------------
 
 REFCLK                                    : in    std_logic;
+REFCLK2                                   : in    std_logic;
 
 GTXRESET_IN                               : in    std_logic;
 PLLLKDET_OUT      : out   std_logic;
@@ -128,6 +130,31 @@ architecture BEHAVIORAL of aurora_8b10b_v5_3_GTX_WRAPPER is
 		);
 	end component;
 
+	component gxb_transceiver_125M is
+		port(
+			cal_blk_clk				: in std_logic;
+			pll_inclk				: in std_logic;
+			rx_analogreset			: in std_logic_vector (0 downto 0);
+			rx_datain				: in std_logic_vector (0 downto 0);
+			rx_digitalreset		: in std_logic_vector (0 downto 0);
+			rx_enapatternalign	: in std_logic_vector (0 downto 0);
+			tx_ctrlenable			: in std_logic_vector (1 downto 0);
+			tx_datain				: in std_logic_vector (15 downto 0);
+			tx_digitalreset		: in std_logic_vector (0 downto 0);
+			pll_locked				: out std_logic_vector (0 downto 0);
+			rx_clkout				: out std_logic_vector (0 downto 0);
+			rx_ctrldetect			: out std_logic_vector (1 downto 0);
+			rx_dataout				: out std_logic_vector (15 downto 0);
+			rx_disperr				: out std_logic_vector (1 downto 0);
+			rx_errdetect			: out std_logic_vector (1 downto 0);
+			rx_freqlocked			: out std_logic_vector (0 downto 0);
+			rx_patterndetect		: out std_logic_vector (1 downto 0);
+			rx_syncstatus			: out std_logic_vector (1 downto 0);
+			tx_clkout				: out std_logic_vector (0 downto 0);
+			tx_dataout				: out std_logic_vector (0 downto 0)
+		);
+	end component;
+	
 	component gxb_bytealign is
 		port(
 			RX_CLK					: in std_logic;
@@ -237,29 +264,57 @@ begin
 		end if;
 	end process;
 
-	gxb_transceiver_inst: gxb_transceiver
-		port map(
-			cal_blk_clk					=> TXUSRCLK_IN,
-			pll_inclk					=> REFCLK,
-			rx_analogreset(0)			=> RX_ANALOGRESET,
-			rx_datain(0)				=> RX1P_IN,
-			rx_digitalreset(0)		=> RX_DIGITALRESET,
-			rx_enapatternalign(0)	=> ENMCOMMAALIGN_IN,
-			tx_ctrlenable				=> TXCHARISK_IN,
-			tx_datain					=> TXDATA_IN,
-			tx_digitalreset(0)		=> TX_DIGITALRESET,
-			pll_locked(0)				=> PLL_LOCKED,
-			rx_clkout(0)				=> RX_CLK,
-			rx_ctrldetect				=> RX_CTRLDETECT_BYTEALIGN,
-			rx_dataout					=> RX_DATA_BYTEALIGN,
-			rx_disperr					=> RX_DISPERR_BYTEALIGN,
-			rx_errdetect				=> RX_ERRDETECT_BYTEALIGN,
-			rx_freqlocked(0)			=> RX_FREQLOCKED,
-			rx_patterndetect			=> RX_PATTERNDETECT_BYTEALIGN,
-			rx_syncstatus				=> RX_SYNCSTATUS,
-			tx_clkout(0)				=> TX_CLKOUT,
-			tx_dataout(0)				=> TX1P_OUT
-		);
+	gxb_40_gen: if MPD_HW_Revision = 40 generate
+		gxb_transceiver_inst: gxb_transceiver
+			port map(
+				cal_blk_clk					=> TXUSRCLK_IN,
+				pll_inclk					=> REFCLK,
+				rx_analogreset(0)			=> RX_ANALOGRESET,
+				rx_datain(0)				=> RX1P_IN,
+				rx_digitalreset(0)		=> RX_DIGITALRESET,
+				rx_enapatternalign(0)	=> ENMCOMMAALIGN_IN,
+				tx_ctrlenable				=> TXCHARISK_IN,
+				tx_datain					=> TXDATA_IN,
+				tx_digitalreset(0)		=> TX_DIGITALRESET,
+				pll_locked(0)				=> PLL_LOCKED,
+				rx_clkout(0)				=> RX_CLK,
+				rx_ctrldetect				=> RX_CTRLDETECT_BYTEALIGN,
+				rx_dataout					=> RX_DATA_BYTEALIGN,
+				rx_disperr					=> RX_DISPERR_BYTEALIGN,
+				rx_errdetect				=> RX_ERRDETECT_BYTEALIGN,
+				rx_freqlocked(0)			=> RX_FREQLOCKED,
+				rx_patterndetect			=> RX_PATTERNDETECT_BYTEALIGN,
+				rx_syncstatus				=> RX_SYNCSTATUS,
+				tx_clkout(0)				=> TX_CLKOUT,
+				tx_dataout(0)				=> TX1P_OUT
+			);
+	end generate;
+
+	gxb_41_gen: if MPD_HW_Revision = 41 generate
+		gxb_transceiver_inst: gxb_transceiver_125M
+			port map(
+				cal_blk_clk					=> TXUSRCLK_IN,
+				pll_inclk					=> REFCLK2,
+				rx_analogreset(0)			=> RX_ANALOGRESET,
+				rx_datain(0)				=> RX1P_IN,
+				rx_digitalreset(0)		=> RX_DIGITALRESET,
+				rx_enapatternalign(0)	=> ENMCOMMAALIGN_IN,
+				tx_ctrlenable				=> TXCHARISK_IN,
+				tx_datain					=> TXDATA_IN,
+				tx_digitalreset(0)		=> TX_DIGITALRESET,
+				pll_locked(0)				=> PLL_LOCKED,
+				rx_clkout(0)				=> RX_CLK,
+				rx_ctrldetect				=> RX_CTRLDETECT_BYTEALIGN,
+				rx_dataout					=> RX_DATA_BYTEALIGN,
+				rx_disperr					=> RX_DISPERR_BYTEALIGN,
+				rx_errdetect				=> RX_ERRDETECT_BYTEALIGN,
+				rx_freqlocked(0)			=> RX_FREQLOCKED,
+				rx_patterndetect			=> RX_PATTERNDETECT_BYTEALIGN,
+				rx_syncstatus				=> RX_SYNCSTATUS,
+				tx_clkout(0)				=> TX_CLKOUT,
+				tx_dataout(0)				=> TX1P_OUT
+			);
+	end generate;
 
 	gxb_bytealign_inst: gxb_bytealign
 		port map(

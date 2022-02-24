@@ -63,7 +63,8 @@ use IEEE.STD_LOGIC_MISC.all;
 
 entity aurora_8b10b_v5_3 is
    generic(
-          SIM_GTXRESET_SPEEDUP   :integer :=   0      
+          SIM_GTXRESET_SPEEDUP   :integer :=   0;
+			 MPD_HW_Revision        :integer :=  40
          );
     port (
 
@@ -94,6 +95,7 @@ entity aurora_8b10b_v5_3 is
     --GTX Reference Clock Interface
 
             GTXD19    : in  std_logic;
+				GTXD19_2  : in  std_logic;
 
     -- Error Detection Interface
 
@@ -223,7 +225,8 @@ architecture MAPPED of aurora_8b10b_v5_3 is
 
     component aurora_8b10b_v5_3_GTX_WRAPPER
        generic(
-                  SIM_GTXRESET_SPEEDUP   :integer :=   0      --Set to 1 to speed up sim reset
+                  SIM_GTXRESET_SPEEDUP   :integer :=   0;      --Set to 1 to speed up sim reset
+						MPD_HW_Revision        :integer :=  40
               );
         port  (
 
@@ -265,6 +268,7 @@ architecture MAPPED of aurora_8b10b_v5_3 is
                 RXUSRCLK_IN             : in    std_logic;
                 RXUSRCLK2_IN            : in    std_logic;
                 REFCLK                                         : in    std_logic;
+					 REFCLK2                                   : in    std_logic;
 
 
                 RXCHARISCOMMA_OUT_unused : out   std_logic_vector (1 downto 0);
@@ -624,7 +628,8 @@ begin
 
     gtx_wrapper_i : aurora_8b10b_v5_3_GTX_WRAPPER
         generic map(
-                     SIM_GTXRESET_SPEEDUP  => SIM_GTXRESET_SPEEDUP
+                     SIM_GTXRESET_SPEEDUP  => SIM_GTXRESET_SPEEDUP,
+							MPD_HW_Revision       => MPD_HW_Revision
                    )
         port map   (
 
@@ -665,6 +670,7 @@ begin
                     TXUSRCLK_IN             => SYNC_CLK,
                     TXUSRCLK2_IN            => USER_CLK,
                     REFCLK                  =>  GTXD19,
+						  REFCLK2                 =>  GTXD19_2,
 
 
 
