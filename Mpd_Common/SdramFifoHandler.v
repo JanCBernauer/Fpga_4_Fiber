@@ -334,7 +334,7 @@ assign FSM_IDLE = req_fsm_idle;
 		begin
 			case( fsm_req_status )
 			0:	begin
-					SDRAsM_READ_REQ_x <= 0;
+					SDRAM_READ_REQ_x <= 0;
 					LoadSdramBurstCount <= 0;
 					Flushing <= 0;
 					if( ENABLE == 1 && SDRAM_READY == 1  &&
