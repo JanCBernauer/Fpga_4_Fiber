@@ -255,7 +255,7 @@ wire [7:0] OutBurstSize;
 wire [7:0] BurstSize;
 
 parameter BurstSize_max = 8'd64;
-parameter OutFifoSize = 8192;
+parameter OutFifoSize = 8000;
 
 assign BurstSize = Flushing ? 8'h2 : BurstSize_max;
 assign SDRAM_READ_REQ = ( SdramBurstCount > 0 && SDRAM_FIFO_WC > 0 ) ? SDRAM_READ_REQ_x : 0; 
@@ -338,7 +338,7 @@ assign FSM_IDLE = req_fsm_idle;
 					LoadSdramBurstCount <= 0;
 					Flushing <= 0;
 					if( ENABLE == 1 && SDRAM_READY == 1  &&
-						(SDRAM_FIFO_WC > (BurstSize<<1)) && ((OutFifoSize - OUTPUT_FIFO_WC) > OutBurstSize) )
+						(SDRAM_FIFO_WC > (BurstSize<<1)) && ((OutFifoSize> OUTPUT_FIFO_WC) )
 						begin
 							fsm_req_status <= 1;
 							req_fsm_idle <= 0;
@@ -379,7 +379,7 @@ assign FSM_IDLE = req_fsm_idle;
 
 				5:	begin // Handle SDRAM FIFO flushing if EVB FIFO is empty
 					Flushing <= 1;
-					if( SDRAM_READY == 1 && ((OutFifoSize - OUTPUT_FIFO_WC) > 1) )
+					if( SDRAM_READY == 1 && (OutFifoSize > OUTPUT_FIFO_WC) )
 						fsm_req_status <= 6;
 				end
 			6:	begin
