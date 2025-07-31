@@ -338,7 +338,7 @@ assign FSM_IDLE = req_fsm_idle;
 					LoadSdramBurstCount <= 0;
 					Flushing <= 0;
 					if( ENABLE == 1 && SDRAM_READY == 1  &&
-						(SDRAM_FIFO_WC > (BurstSize<<1)) && (OutFifoSize > OUTPUT_FIFO_WC) )
+						(SDRAM_FIFO_WC > ((BurstSize_max<<1))) && (OutFifoSize > OUTPUT_FIFO_WC) )
 						begin
 							fsm_req_status <= 1;
 							req_fsm_idle <= 0;
