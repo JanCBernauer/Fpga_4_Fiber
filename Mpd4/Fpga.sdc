@@ -16,7 +16,7 @@ set tCO_vme 8.5
 set tSU_DDR_adc 0.67
 set tH_DDR_adc 0.85
 set bit_period_DDR_adc 4.1
-set frame_period_DDR_adc 25.0
+set frame_period_DDR_adc 12.5
 
 # Virtual clocks
 create_clock -name {Ck_110MHz_virt} -period 9.09

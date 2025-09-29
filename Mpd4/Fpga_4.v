@@ -264,6 +264,8 @@ wire Enable_I2C_Hdmi0, Enable_I2C_Hdmi1;
 wire OutputFifoBlockWordCount_Rd, OutputFifoBlockWordCount_Empty, OutputFifoBlockWordCount_Full;
 wire [19:0] OutputFifoBlockWordCount_Q;
 
+wire global_lock,clkbad0,clkbad1,activeclk;
+
 assign SPARE33 = 0;
 assign SPARE25 = 0;
 assign SPARE_CLK_TTL = 0;
@@ -405,11 +407,15 @@ assign time_clock = sel_time_clk ? CLK_IN_P0 : APV_CLOCK;
 		BUSY_OUT <= internal_trigger_disabled | (FifoLevel1&UseSdramFifo) | (EvbFifoAlmostFull&~UseSdramFifo);
 	end
 
-	OneShot TurnOnLed0(.OUT(LED[0]), .START(VME_DTACK_EN | Fiber_activity), .CK(ck_1MHz), .RSTb(RSTb_sync));
-	OneShot TurnOnLed1(.OUT(LED[1]), .START(APV_TRIGGER),  .CK(ck_1MHz), .RSTb(RSTb_sync));
-	OneShot TurnOnLed2(.OUT(LED[2]), .START(~I2C_SCL),     .CK(ck_1MHz), .RSTb(RSTb_sync));
+	//OneShot TurnOnLed0(.OUT(LED[0]), .START(VME_DTACK_EN | Fiber_activity), .CK(ck_1MHz), .RSTb(RSTb_sync));
+	//OneShot TurnOnLed1(.OUT(LED[1]), .START(APV_TRIGGER),  .CK(ck_1MHz), .RSTb(RSTb_sync));
+	//OneShot TurnOnLed2(.OUT(LED[2]), .START(~global_lock),     .CK(ck_1MHz), .RSTb(RSTb_sync));
 //	OneShot TurnOnLed3(.OUT(LED[3]), .START(1'b0),         .CK(ck_1MHz), .RSTb(RSTb_sync));
-	assign LED[3] = Fiber_up;
+	assign LED[0]= activeclk;
+	assign LED[1]= clkbad0;
+	assign LED[2]= clkbad1;
+	assign LED[3] = ~global_lock;
+	
 
 // Clocking devices
 // CLK_IN_P0 = 62.5 MHz = 250 MHz / 4
@@ -444,7 +450,12 @@ GlobalPll ClockGenerator(
 	.inclk1(MASTER_CLOCK),
 	.c0(ck_40MHz),
 	.c1(ck_10MHz),
-	.c2(ck_1MHz));	// 1.2 MHz
+	.c2(ck_1MHz),
+	.locked(global_locked),
+	.clkbad0(clkbad0),
+	.clkbad1(clkbad1),
+	.activeclock(activeclk),
+	);	// 1.2 MHz
 // End of Clocking devices
 
 assign Sdram_Fifo_Re = Fiber_enabled ? Fiber_data_re : (~Vme_user_reB & ~DataReadout_ceB);
